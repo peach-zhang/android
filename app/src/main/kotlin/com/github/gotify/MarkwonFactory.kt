@@ -3,12 +3,16 @@ package com.github.gotify
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.text.Spannable
+import android.text.Spanned
 import android.text.style.BackgroundColorSpan
 import android.text.style.BulletSpan
 import android.text.style.QuoteSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.text.style.TypefaceSpan
+import android.text.util.Linkify
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import coil.ImageLoader
 import coil.request.Disposable
@@ -35,11 +39,20 @@ import org.commonmark.node.Emphasis
 import org.commonmark.node.Heading
 import org.commonmark.node.Link
 import org.commonmark.node.ListItem
+import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.parser.Parser
 import org.tinylog.kotlin.Logger
 
 internal object MarkwonFactory {
+    // Gotify messages are mostly plain multi-line text rather than strict CommonMark,
+    // so keep single newlines as line breaks (GFM style)
+    private val softBreaksPlugin = object : AbstractMarkwonPlugin() {
+        override fun configureVisitor(builder: MarkwonVisitor.Builder) {
+            builder.on(SoftLineBreak::class.java) { visitor, _ -> visitor.builder().append('\n') }
+        }
+    }
+
     fun createForMessage(context: Context, imageLoader: ImageLoader): Markwon {
         return Markwon.builder(context)
             .usePlugin(CorePlugin.create())
@@ -70,6 +83,13 @@ internal object MarkwonFactory {
             )
             .usePlugin(StrikethroughPlugin.create())
             .usePlugin(TablePlugin.create(context))
+            .usePlugin(softBreaksPlugin)
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                // bare URLs are not Markdown links, so linkify them like plain text messages
+                override fun beforeSetText(textView: TextView, markdown: Spanned) {
+                    Linkify.addLinks(markdown as Spannable, Linkify.WEB_URLS)
+                }
+            })
             .usePlugin(object : AbstractMarkwonPlugin() {
                 override fun configureTheme(builder: MarkwonTheme.Builder) {
                     builder.linkColor(ContextCompat.getColor(context, R.color.hyperLink))
@@ -79,14 +99,17 @@ internal object MarkwonFactory {
             .build()
     }
 
-    fun createForNotification(context: Context, imageLoader: ImageLoader): Markwon {
+    fun createForNotification(context: Context): Markwon {
         val headingSizes = floatArrayOf(2f, 1.5f, 1.17f, 1f, .83f, .67f)
         val bulletGapWidth = (8 * context.resources.displayMetrics.density + 0.5f).toInt()
 
         return Markwon.builder(context)
             .usePlugin(CorePlugin.create())
-            .usePlugin(CoilImagesPlugin.create(context, imageLoader))
+            // Notification text is parceled to SystemUI. Do not add Markwon's custom image
+            // spans here: they can retain resource package identity and are not safe to send
+            // across processes (notably on HyperOS NotificationProviderPublic).
             .usePlugin(StrikethroughPlugin.create())
+            .usePlugin(softBreaksPlugin)
             .usePlugin(object : AbstractMarkwonPlugin() {
                 override fun configureSpansFactory(builder: MarkwonSpansFactory.Builder) {
                     builder.setFactory(Heading::class.java) { _, props: RenderProps? ->

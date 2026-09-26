@@ -5,6 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/gotify_page_background"
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
@@ -12,70 +13,74 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!--
+          顶边距 = app_bar_drawer.xml 的固定高度（296dp），保证列表与顶栏不重叠。
+          内边距左右 21dp 对应原型 .feed 的 padding:0 21px 80px；消息卡片自身左右不加 padding。
+        -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_marginTop="296dp"
+            android:background="@color/gotify_surface">
 
-            <LinearLayout
+            <ViewFlipper
+                android:id="@+id/flipper"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="none"
-                android:orientation="vertical"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+                android:background="@color/gotify_surface">
 
-                <ViewFlipper
-                    android:id="@+id/flipper"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/messages_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingStart="21dp"
+                    android:paddingTop="17dp"
+                    android:paddingEnd="21dp"
+                    android:paddingBottom="80dp"
+                    android:scrollbars="vertical" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/messages_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scrollbars="vertical"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-                    </androidx.recyclerview.widget.RecyclerView>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/no_messages"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/gotify_surface"
+                    android:paddingStart="28dp"
+                    android:paddingEnd="28dp">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/no_messages"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scrollbars="none"
-                        android:orientation="vertical">
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/textView2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:autoLink="web"
+                        android:gravity="center"
+                        android:lineSpacingExtra="3dp"
+                        android:text="@string/no_messages_yet"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.Gotify.Body"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toTopOf="@id/learn_gotify"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_chainStyle="packed" />
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/textView2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:autoLink="web"
-                            android:text="@string/no_messages_yet"
-                            android:textAlignment="center"
-                            android:textColor="#BDBDBD"
-                            android:textSize="18sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.3" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/learn_gotify"
+                        style="@style/Widget.Gotify.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:text="@string/learn_gotify"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textView2" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/learn_gotify"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="32dp"
-                            android:text="Learn how to send messages"
-                            android:textColor="@android:color/white"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                </ViewFlipper>
-
-            </LinearLayout>
+            </ViewFlipper>
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -84,16 +89,38 @@
             layout="@layout/app_bar_drawer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <!--  compose FAB（原型 .compose：52dp / r17 / bg brand）  -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/send_message"
+            android:layout_width="@dimen/gotify_fab"
+            android:layout_height="@dimen/gotify_fab"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="29dp"
+            android:contentDescription="@string/push_message"
+            app:backgroundTint="@color/gotify_brand_filled"
+            app:elevation="0dp"
+            app:fabCustomSize="@dimen/gotify_fab"
+            app:hoveredFocusedTranslationZ="0dp"
+            app:maxImageSize="22dp"
+            app:pressedTranslationZ="0dp"
+            app:rippleColor="@color/gotify_brand_pressed"
+            app:srcCompat="@drawable/gotify_messages_compose" />
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+        android:layout_width="304dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:theme="@style/AppTheme.Nav"
+        android:background="@color/gotify_surface"
         android:fitsSystemWindows="false"
+        android:theme="@style/AppTheme.Nav"
         app:headerLayout="@layout/nav_header_drawer"
+        app:itemBackground="@drawable/gotify_bg_drawer_item"
+        app:itemIconTint="@color/gotify_messages_drawer_icon"
         app:menu="@menu/messages_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

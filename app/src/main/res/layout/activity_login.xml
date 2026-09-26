@@ -1,241 +1,595 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  登录页 —— 对齐 gotify-login-concept.html。
+  CSS px 与 dp 1:1；字号 1:1 用 sp；letter-spacing / line-height 见对应样式或内联值。
+  原型中的稿件外壳元素（statusbar / device-bottom / brief / scrim / toast 等）不在此实现。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:fitsSystemWindows="true">
+    android:background="@color/gotify_page_background"
+    tools:context=".login.LoginActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/login_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".login.LoginActivity"
-        tools:layout_editor_absoluteY="25dp">
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/open_logs"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:insetTop="0dp"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:text="@string/logs"
-            android:background="@null"
-            android:textColor="@color/colorNavPrimary"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/checkurl_progress"
-            android:layout_width="49dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:minWidth="40dp"
-            android:minHeight="40dp"
-            android:indeterminateOnly="true"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/checkurl" />
+            android:orientation="vertical"
+            android:paddingStart="@dimen/gotify_page_padding_login"
+            android:paddingTop="@dimen/gotify_space_1"
+            android:paddingEnd="@dimen/gotify_page_padding_login"
+            android:paddingBottom="@dimen/gotify_page_padding_bottom">
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/login_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:minWidth="40dp"
-            android:minHeight="40dp"
-            android:indeterminateOnly="true"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
-            app:layout_constraintTop_toTopOf="@+id/login" />
-
-        <ImageView
-            android:id="@+id/gotify_logo_image"
-            android:layout_width="0dp"
-            android:layout_height="180dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/gotify"
-            android:contentDescription="@string/gotify_logo" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/gotify_url"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:ems="10"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/gotify_logo_image"
-            app:layout_constraintWidth_max="280dp"
-            tools:text="Gotify URL">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/gotify_url_editext"
+            <!--  ==================== 顶栏：wordmark + 查看日志 ====================  -->
+            <LinearLayout
+                android:id="@+id/topbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:inputType="textUri"
-                android:importantForAutofill="no"
-                android:hint="@string/gotify_url" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="13dp"
+                android:paddingBottom="13dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/oidc_login"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColor="@android:color/white"
-            android:text="@string/login_with_oidc"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/checkurl"
-            app:layout_constraintWidth_max="280dp" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="-0.045"
+                        android:text="@string/login_wordmark"
+                        android:textColor="@color/gotify_text_primary"
+                        android:textSize="19sp"
+                        android:textStyle="bold" />
 
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/oidc_login_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="40dp"
-            android:minHeight="40dp"
-            android:indeterminateOnly="true"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
-            app:layout_constraintTop_toTopOf="@+id/oidc_login" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="-0.045"
+                        android:text="@string/login_wordmark_dot"
+                        android:textColor="@color/gotify_brand"
+                        android:textSize="19sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
-        <TextView
-            android:id="@+id/login_separator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/or"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/oidc_login" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/open_logs"
+                    style="@style/Widget.Gotify.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="@string/login_view_logs"
+                    android:textColor="@color/gotify_text_secondary" />
+            </LinearLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/username"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:ems="10"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/login_separator"
-            app:layout_constraintWidth_max="280dp">
+            <!--  ==================== hero-mark ====================  -->
+            <FrameLayout
+                android:id="@+id/login_hero"
+                android:layout_width="57dp"
+                android:layout_height="57dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/gotify_login_hero_background">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/username_editext"
+                <ImageView
+                    android:id="@+id/gotify_logo_image"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/gotify_logo"
+                    app:srcCompat="@drawable/gotify_login_pulse" />
+            </FrameLayout>
+
+            <!--  ==================== intro ====================  -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/login_kicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="21dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/login_kicker"
+                android:textAppearance="@style/TextAppearance.Gotify.Kicker.Brand" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/login_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:inputType="textPersonName"
-                android:importantForAutofill="yes"
-                android:autofillHints="username"
-                android:hint="@string/username" />
+                android:lineSpacingMultiplier="1.25"
+                android:text="@string/login_intro_title"
+                android:textAppearance="@style/TextAppearance.Gotify.HeroTitle" />
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/password"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:ems="10"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/username"
-            app:layout_constraintWidth_max="280dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password_editext"
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/login_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:inputType="textPassword"
-                android:importantForAutofill="yes"
-                android:autofillHints="password"
-                android:hint="@string/password" />
+                android:layout_marginTop="9dp"
+                android:text="@string/login_intro_body"
+                android:textAppearance="@style/TextAppearance.Gotify.Body" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+            <!--  ==================== step 01 · 连接服务器 ====================  -->
+            <LinearLayout
+                android:id="@+id/step_server"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/login"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:textColor="@android:color/white"
-            android:text="@string/login"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/password"
-            app:layout_constraintWidth_max="280dp" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="23dp"
+                    android:layout_height="23dp"
+                    android:background="@drawable/gotify_login_step_num"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:text="@string/login_step_server_num"
+                    android:textColor="@color/gotify_brand_deep"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/checkurl"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:textColor="@android:color/white"
-            android:text="@string/check_url"
-            android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@+id/advanced_settings"
-            app:layout_constraintStart_toStartOf="@+id/gotify_url"
-            app:layout_constraintTop_toBottomOf="@+id/gotify_url"
-            app:layout_constraintWidth_max="280dp" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/login_step_server_title"
+                    android:textColor="@color/gotify_text_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/advanced_settings"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:text="@string/check_url"
-            android:visibility="visible"
-            android:background="@null"
-            app:layout_constraintEnd_toEndOf="@+id/gotify_url"
-            app:layout_constraintTop_toTopOf="@+id/checkurl"
-            app:layout_constraintBottom_toBottomOf="@id/checkurl"
-            app:srcCompat="@drawable/ic_settings" />
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:background="@color/gotify_divider" />
+            </LinearLayout>
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/oidc_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="oidc_login,login_separator" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/gotify_url_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="7dp"
+                android:labelFor="@id/gotify_url_editext"
+                android:text="@string/login_server_label"
+                android:textAppearance="@style/TextAppearance.Gotify.FieldLabel" />
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/credential_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="username,password,login" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+            <!--  field-box：容器通过 addStatesFromChildren 继承内部输入框的 focus 态，
+                  从而让 @drawable/gotify_field 的 1dp divider → brand 生效（原型 :focus-within）  -->
+            <LinearLayout
+                android:id="@+id/url_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:addStatesFromChildren="true"
+                android:background="@drawable/gotify_field"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/gotify_field_height"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp">
+
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:importantForAccessibility="no"
+                    app:srcCompat="@drawable/gotify_login_globe" />
+
+                <EditText
+                    android:id="@+id/gotify_url_editext"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="9dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:importantForAutofill="no"
+                    android:inputType="textUri"
+                    android:singleLine="true"
+                    android:textColor="@color/gotify_text_primary"
+                    android:textColorHint="@color/gotify_text_secondary"
+                    android:textSize="12sp"
+                    tools:ignore="Autofill,LabelFor" />
+            </LinearLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/server_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:text="@string/login_server_hint"
+                android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/url_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:background="@drawable/gotify_login_field_error"
+                android:lineSpacingMultiplier="1.55"
+                android:paddingStart="10dp"
+                android:paddingTop="9dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="9dp"
+                android:text="@string/login_url_error"
+                android:textColor="@color/gotify_warning"
+                android:textSize="11sp"
+                android:visibility="gone"
+                tools:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/server_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="11dp"
+                android:background="@drawable/gotify_login_server_result"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="11dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="11dp"
+                android:paddingBottom="10dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:importantForAccessibility="no"
+                    app:srcCompat="@drawable/gotify_login_check" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/server_result_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:textColor="@color/gotify_success"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    tools:text="Server found · Gotify 2.7.3" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/server_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="11dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/checkurl"
+                    style="@style/Widget.Gotify.Button.Primary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="43dp"
+                    android:text="@string/login_check_url" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/advanced_settings"
+                    style="@style/Widget.Gotify.Button.Secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp"
+                    android:minHeight="43dp"
+                    android:text="@string/login_advanced" />
+            </LinearLayout>
+
+            <!--  ==================== step 02 · 选择登录方式（验证成功后才显示） ====================  -->
+            <LinearLayout
+                android:id="@+id/auth_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:id="@+id/step_auth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="26dp"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="23dp"
+                        android:layout_height="23dp"
+                        android:background="@drawable/gotify_login_step_num"
+                        android:fontFamily="sans-serif-black"
+                        android:gravity="center"
+                        android:text="@string/login_step_auth_num"
+                        android:textColor="@color/gotify_brand_deep"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/login_step_auth_title"
+                        android:textColor="@color/gotify_text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@color/gotify_divider" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/oidc_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:id="@+id/oidc_login"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="17dp"
+                        android:background="@drawable/gotify_login_oidc_bg"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:minHeight="46dp"
+                        android:orientation="horizontal"
+                        android:paddingStart="13dp"
+                        android:paddingTop="12dp"
+                        android:paddingEnd="13dp"
+                        android:paddingBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:importantForAccessibility="no"
+                            app:srcCompat="@drawable/gotify_login_globe"
+                            app:tint="@color/gotify_brand_deep" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="11dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/oidc_login_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/login_oidc_title"
+                                android:textColor="@color/gotify_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/oidc_login_subtitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="@string/login_oidc_subtitle"
+                                android:textColor="@color/gotify_text_secondary"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:importantForAccessibility="no"
+                            app:srcCompat="@drawable/gotify_login_arrow_right" />
+                    </LinearLayout>
+
+                    <!--  or 分隔：两侧 1dp 线 + 文案  -->
+                    <LinearLayout
+                        android:id="@+id/or_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="17dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/gotify_divider" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="13dp"
+                            android:layout_marginEnd="13dp"
+                            android:text="@string/login_or"
+                            android:textColor="@color/gotify_text_secondary"
+                            android:textSize="10sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/gotify_divider" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!--  账号密码：两个 field-box 竖向堆叠，gap 13  -->
+                <LinearLayout
+                    android:id="@+id/input_stack"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/username_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="7dp"
+                        android:labelFor="@id/username_editext"
+                        android:text="@string/login_username_label"
+                        android:textAppearance="@style/TextAppearance.Gotify.FieldLabel" />
+
+                    <LinearLayout
+                        android:id="@+id/username_field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:addStatesFromChildren="true"
+                        android:background="@drawable/gotify_field"
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/gotify_field_height"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp">
+
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:importantForAccessibility="no"
+                            app:srcCompat="@drawable/gotify_login_user" />
+
+                        <EditText
+                            android:id="@+id/username_editext"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:autofillHints="username"
+                            android:background="@null"
+                            android:hint="@string/login_username_hint"
+                            android:importantForAutofill="yes"
+                            android:inputType="textPersonName"
+                            android:singleLine="true"
+                            android:textColor="@color/gotify_text_primary"
+                            android:textColorHint="@color/gotify_text_secondary"
+                            android:textSize="12sp"
+                            tools:ignore="LabelFor" />
+                    </LinearLayout>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/password_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="13dp"
+                        android:layout_marginBottom="7dp"
+                        android:labelFor="@id/password_editext"
+                        android:text="@string/login_password_label"
+                        android:textAppearance="@style/TextAppearance.Gotify.FieldLabel" />
+
+                    <LinearLayout
+                        android:id="@+id/password_field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:addStatesFromChildren="true"
+                        android:background="@drawable/gotify_field"
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/gotify_field_height"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp">
+
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:importantForAccessibility="no"
+                            app:srcCompat="@drawable/gotify_login_lock" />
+
+                        <EditText
+                            android:id="@+id/password_editext"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:autofillHints="password"
+                            android:background="@null"
+                            android:hint="@string/login_password_hint"
+                            android:importantForAutofill="yes"
+                            android:inputType="textPassword"
+                            android:singleLine="true"
+                            android:textColor="@color/gotify_text_primary"
+                            android:textColorHint="@color/gotify_text_secondary"
+                            android:textSize="12sp"
+                            tools:ignore="LabelFor" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/password_toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="5dp"
+                            android:text="@string/login_password_show"
+                            android:textColor="@color/gotify_text_secondary"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/login"
+                    style="@style/Widget.Gotify.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="17dp"
+                    android:minHeight="@dimen/gotify_button_height"
+                    android:text="@string/login_submit" />
+
+                <!--  privacy：盾牌 14dp teal + 10sp 说明  -->
+                <LinearLayout
+                    android:id="@+id/privacy_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginTop="1dp"
+                        android:importantForAccessibility="no"
+                        app:srcCompat="@drawable/gotify_login_shield" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.6"
+                        android:text="@string/login_privacy"
+                        android:textColor="@color/gotify_text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!--  ==================== bottom-note ====================  -->
+            <View
+                android:id="@+id/bottom_note_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="28dp"
+                android:background="@color/gotify_divider" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/bottom_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingMultiplier="1.7"
+                android:paddingTop="16dp"
+                android:textColor="@color/gotify_text_secondary"
+                android:textSize="10sp"
+                tools:text="Need a self-signed certificate? Choose a CA or client certificate in Advanced settings." />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>

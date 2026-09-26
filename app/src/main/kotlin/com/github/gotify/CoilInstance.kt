@@ -43,6 +43,7 @@ object CoilInstance {
 
         return when (val result = get(context).executeBlocking(request)) {
             is SuccessResult -> result.drawable.toBitmap()
+
             is ErrorResult -> {
                 Logger.error(
                     result.throwable

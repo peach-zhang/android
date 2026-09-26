@@ -1,65 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<!--  登录页「高级连接设置」对话框内容。
+      对应 concept 原型的 .dialog：勾选行 + 两行文件行（左侧「标签 · 状态」、右侧小按钮）+ 证书密码输入。  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="20dp">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/gotify_space_5">
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/disableSSL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/disabled_validate_ssl" />
+        android:minHeight="@dimen/gotify_button_height"
+        android:text="@string/disabled_validate_ssl"
+        android:textAppearance="@style/TextAppearance.Gotify.Small"
+        android:textColor="@color/gotify_text_primary"
+        app:buttonTint="@color/gotify_brand" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/toggle_ca_cert"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:text="@string/select_ca_certificate" />
+        android:layout_marginTop="@dimen/gotify_space_3"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/selected_ca_cert"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/selected_ca_cert"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/no_certificate_selected"
+            android:textAppearance="@style/TextAppearance.Gotify.Caption"
+            android:textColor="@color/gotify_text_primary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/toggle_ca_cert"
+            style="@style/Widget.Gotify.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/gotify_space_2"
+            android:minHeight="36dp"
+            android:paddingStart="@dimen/gotify_space_3"
+            android:paddingEnd="@dimen/gotify_space_3"
+            android:text="@string/select_ca_certificate"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/gotify_border"
+        android:layout_marginTop="@dimen/gotify_space_3"
+        android:background="@color/gotify_divider" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_certificate_selected" />
+        android:layout_marginTop="@dimen/gotify_space_3"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp" />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/selected_client_cert"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/no_certificate_selected"
+            android:textAppearance="@style/TextAppearance.Gotify.Caption"
+            android:textColor="@color/gotify_text_primary" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/toggle_client_cert"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:textColor="@android:color/white"
-        android:text="@string/select_client_certificate" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/selected_client_cert"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/no_certificate_selected" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/toggle_client_cert"
+            style="@style/Widget.Gotify.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/gotify_space_2"
+            android:minHeight="36dp"
+            android:paddingStart="@dimen/gotify_space_3"
+            android:paddingEnd="@dimen/gotify_space_3"
+            android:text="@string/select_client_certificate"
+            android:textSize="11sp" />
+    </LinearLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/client_cert_password"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:maxWidth="280dp"
-        android:ems="10">
+        android:layout_marginTop="@dimen/gotify_space_4"
+        app:boxCornerRadiusBottomEnd="@dimen/gotify_radius_small"
+        app:boxCornerRadiusBottomStart="@dimen/gotify_radius_small"
+        app:boxCornerRadiusTopEnd="@dimen/gotify_radius_small"
+        app:boxCornerRadiusTopStart="@dimen/gotify_radius_small"
+        app:boxStrokeColor="@color/gotify_brand"
+        app:hintTextColor="@color/gotify_text_secondary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/client_cert_password_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:inputType="textPassword"
+            android:hint="@string/client_cert_password"
             android:importantForAutofill="no"
-            android:hint="@string/client_cert_password" />
+            android:inputType="textPassword"
+            android:singleLine="true"
+            android:textAppearance="@style/TextAppearance.Gotify.Body.Primary"
+            android:textColor="@color/gotify_text_primary" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

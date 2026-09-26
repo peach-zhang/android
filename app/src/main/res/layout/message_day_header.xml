@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  按天分组的日标签（原型 .day-label：11sp 800 / ls .08em / muted + 右侧 1px 线）  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingTop="6dp"
+    android:paddingBottom="5dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/day_label_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:letterSpacing="0.08"
+        android:maxLines="1"
+        android:textColor="@color/gotify_text_secondary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        tools:text="今天" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="11dp"
+        android:layout_weight="1"
+        android:background="@color/gotify_divider" />
+
+</LinearLayout>

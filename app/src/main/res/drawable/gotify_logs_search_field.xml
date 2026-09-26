@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  日志搜索框背景（原型 .search：surface_soft 填充 + 1px 分隔线 + 9px 圆角）  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/gotify_surface_soft" />
+    <corners android:radius="9dp" />
+    <stroke
+        android:width="@dimen/gotify_border"
+        android:color="@color/gotify_divider" />
+</shape>

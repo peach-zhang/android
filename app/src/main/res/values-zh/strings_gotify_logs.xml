@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  日志页（LogsActivity）中文文案，正文取自 gotify-logs-concept.html  -->
+<resources>
+    <string name="logs_title">运行日志</string>
+    <string name="logs_source_local">本机日志</string>
+    <string name="logs_privacy_caption">用于排查连接与消息接收问题；真实日志可能包含服务器地址等信息，分享前请先检查内容。</string>
+    <string name="logs_copy_full">复制完整日志</string>
+    <string name="logs_clear">清空</string>
+    <string name="logs_search_hint">搜索日志内容</string>
+    <string name="logs_filter_all">全部</string>
+    <string name="logs_filter_info">INFO</string>
+    <string name="logs_filter_warn">WARN</string>
+    <string name="logs_filter_error">ERROR</string>
+    <string name="logs_empty_title">暂无日志</string>
+    <string name="logs_empty_body">应用还没有写入任何日志内容。</string>
+    <string name="logs_no_match_title">没有匹配的日志</string>
+    <string name="logs_no_match_body">试试其他关键词或级别。</string>
+    <string name="logs_footnote">本机日志 · 每 5 秒自动刷新</string>
+    <string name="logs_counter">显示 %1$d / %2$d 条</string>
+    <string name="logs_day_today">今天</string>
+    <string name="logs_clear_confirm_title">清空日志？</string>
+    <string name="logs_clear_confirm_message">这会删除本机保存的全部日志，且无法恢复。</string>
+    <string name="logs_clear_confirm_positive">清空</string>
+</resources>

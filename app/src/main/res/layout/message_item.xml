@@ -4,66 +4,224 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="10dp"
-    android:background="?android:colorBackground">
+    android:background="@drawable/gotify_messages_item_background"
+    android:paddingStart="1dp"
+    android:paddingTop="17dp"
+    android:paddingEnd="0dp"
+    android:paddingBottom="17dp">
+
+    <!--  应用图标；无图标时显示应用名首字母，配色按应用确定  -->
+    <FrameLayout
+        android:id="@+id/message_image_container"
+        android:layout_width="@dimen/gotify_appicon"
+        android:layout_height="@dimen/gotify_appicon"
+        android:background="@drawable/gotify_messages_app_icon_background"
+        android:clipToOutline="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/message_app_initial"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="@color/gotify_brand_deep"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="D"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/message_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/message_image_desc"
+            android:padding="5dp"
+            android:scaleType="centerCrop"
+            tools:srcCompat="@drawable/gotify" />
+
+    </FrameLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/message_app_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/gotify_text_primary"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/message_date"
+        app:layout_constraintStart_toEndOf="@id/message_image_container"
+        app:layout_constraintTop_toTopOf="@id/message_image_container"
+        tools:text="Deployment" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/message_source_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/messages_source_label"
+        android:textColor="@color/gotify_text_secondary"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="@id/message_app_name"
+        app:layout_constraintStart_toStartOf="@id/message_app_name"
+        app:layout_constraintTop_toBottomOf="@id/message_app_name"
+        tools:text="应用消息" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/message_date"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_marginEnd="8dp"
-        tools:text="1 hour ago"
-        app:layout_constraintEnd_toStartOf="@+id/message_delete"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:ellipsize="end"
+        android:focusable="true"
+        android:maxLines="1"
+        android:minHeight="0dp"
+        android:textColor="@color/gotify_text_secondary"
+        android:textSize="11sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="09:38" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/message_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        tools:text="A Notification Title"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/message_date"
+        android:layout_marginTop="11dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:textAppearance="@style/TextAppearance.Gotify.MessageTitle"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/message_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        tools:srcCompat="@drawable/gotify"
-        android:contentDescription="@string/message_image_desc"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/message_title" />
+        app:layout_constraintTop_toBottomOf="@id/message_image_container"
+        tools:text="生产环境部署完成" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/message_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textColorLink="@color/hyperLink"
-        android:textIsSelectable="true"
-        tools:text="The message text."
+        android:layout_marginTop="4dp"
+        android:autoLink="web"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.Gotify.Body"
+        android:textColorLink="@color/gotify_brand_deep"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/message_image"
-        app:layout_constraintTop_toBottomOf="@+id/message_title" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/message_title"
+        tools:text="v2.10.1 已部署，服务健康检查全部通过。" />
 
-    <ImageButton
-        android:id="@+id/message_delete"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:background="@null"
-        android:contentDescription="@string/delete_message"
-        app:layout_constraintBottom_toBottomOf="@+id/message_date"
+    <LinearLayout
+        android:id="@+id/message_meta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_delete" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/message_text">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/message_priority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gotify_messages_priority_normal"
+            android:paddingStart="6dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="3dp"
+            android:textColor="@color/gotify_brand_deep"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            tools:text="普通 · 5" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/message_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/gotify_text_secondary"
+            android:textSize="10sp"
+            tools:text="消息 #1234" />
+
+    </LinearLayout>
+
+    <!--  展开详情：bg surface_soft / r9 / pad 12  -->
+    <LinearLayout
+        android:id="@+id/message_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
+        android:background="@drawable/gotify_messages_details_background"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/message_meta"
+        tools:visibility="visible">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/message_details_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="web"
+            android:textColor="@color/gotify_text_secondary"
+            android:textColorLink="@color/gotify_brand_deep"
+            android:textIsSelectable="true"
+            android:textSize="11sp"
+            android:lineSpacingMultiplier="1.7"
+            tools:text="本次发布包含消息展示优化。" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/message_copy"
+                style="@style/Widget.Gotify.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="30dp"
+                android:minWidth="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/messages_copy_content"
+                android:textSize="11sp"
+                app:cornerRadius="7dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/message_delete"
+                style="@style/Widget.Gotify.Button.Danger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:minHeight="30dp"
+                android:minWidth="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/messages_delete"
+                android:textSize="11sp"
+                app:cornerRadius="7dp"
+                app:strokeWidth="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

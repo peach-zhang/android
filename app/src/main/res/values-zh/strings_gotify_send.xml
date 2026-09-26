@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Gotify 发送消息页（ShareActivity）中文文案，取自 concept 原型 gotify-send-concept.html。  -->
+<resources>
+    <string name="send_title">发送消息</string>
+
+    <!--  intro 卡  -->
+    <string name="send_intro_title">推送到自己的 Gotify</string>
+    <string name="send_intro_body">消息会发送到你登录的服务器。</string>
+
+    <!--  发送到  -->
+    <string name="send_label_app">应用</string>
+    <string name="send_suffix_required">· 必选</string>
+    <string name="send_app_field_empty">选择应用</string>
+    <string name="send_app_dialog_title">选择应用</string>
+    <string name="send_app_list_note">应用列表来自你登录的服务器。</string>
+    <string name="send_error_app_missing">请选择用于发送的应用。</string>
+
+    <!--  消息内容  -->
+    <string name="send_label_title">标题</string>
+    <string name="send_suffix_optional">· 可选</string>
+    <string name="send_title_placeholder">例如：服务已恢复</string>
+    <string name="send_label_content">正文</string>
+    <string name="send_content_placeholder">输入要发送的消息内容</string>
+    <string name="send_content_note">支持多行文本与 Markdown 原文。</string>
+    <string name="send_error_content_empty">消息正文不能为空。</string>
+
+    <!--  通知级别  -->
+    <string name="send_label_priority">优先级</string>
+    <string name="send_suffix_number">· 数字</string>
+    <string name="send_priority_desc_default">默认级别 · 数值 0</string>
+    <string name="send_priority_desc_low">低优先级 · 数值 %1$d</string>
+    <string name="send_priority_desc_normal">普通优先级 · 数值 %1$d</string>
+    <string name="send_priority_desc_high">高优先级 · 数值 %1$d</string>
+    <string name="send_priority_desc_empty">请填写数字</string>
+    <string name="send_priority_desc_invalid">请输入最多三位数字</string>
+    <string name="send_priority_help">0 为默认值；1–3 低，4–7 普通，8 及以上高。级别划分以服务器与设备设置为准。</string>
+    <string name="send_error_priority_invalid">优先级需要是最多三位的非负整数。</string>
+
+    <!--  发送前预览  -->
+    <string name="send_preview_section">发送前预览</string>
+    <string name="send_preview_no_app">未选择应用</string>
+    <string name="send_preview_now">现在</string>
+    <string name="send_preview_no_title">无标题消息</string>
+    <string name="send_preview_placeholder">输入消息后可在这里查看文本布局</string>
+    <string name="send_preview_icon_placeholder">◎</string>
+    <string name="send_preview_empty">服务器上没有可用的应用，暂时无法发送消息。请先在 Gotify Web UI 中创建应用。</string>
+    <string name="send_postscript">预览按纯文本显示；实际 App 的消息正文可按 Markdown 渲染，通知形式取决于设备设置。</string>
+
+    <!--  底部主按钮与反馈  -->
+    <string name="send_button">发送</string>
+    <string name="send_button_sending">发送中…</string>
+    <string name="send_success">消息已发送。</string>
+    <string name="send_failed">消息发送失败，详情请查看日志。</string>
+</resources>

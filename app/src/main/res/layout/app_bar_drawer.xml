@@ -1,18 +1,251 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  消息页顶栏（原型 .topbar + .connection + .section-head + .filters + .search）。
+  固定高度 296dp，供 activity_messages 的 SwipeRefreshLayout 顶边距参考：
+  56(顶栏) + 8 + 42(连接条) + 16 + 54(分区头) + 15 + 32(筛选 chips) + 15 + 40(搜索) + 15 + 1(分隔线)
+  = 294dp；此处取 296dp 留 2dp 余量，避免不同字体度量下被裁切。
+-->
 <com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:theme="@style/AppTheme.AppBarOverlay"
+    android:layout_height="296dp"
+    android:background="@color/gotify_surface"
+    android:elevation="0dp"
+    app:elevation="0dp"
     tools:context=".messages.MessagesActivity">
 
+    <!--  顶栏：标题 + 刷新 + 菜单  -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/gotify_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="21dp"
+        android:paddingEnd="13dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/messages_title"
+            android:textAppearance="@style/TextAppearance.Gotify.TopbarTitle" />
+
+        <ImageButton
+            android:id="@+id/action_refresh"
+            style="@style/Widget.Gotify.IconButton"
+            android:layout_width="@dimen/gotify_icon_button"
+            android:layout_height="@dimen/gotify_icon_button"
+            android:contentDescription="@string/messages_refresh"
+            app:srcCompat="@drawable/ic_refresh" />
+
+        <ImageButton
+            android:id="@+id/action_menu"
+            style="@style/Widget.Gotify.IconButton"
+            android:layout_width="@dimen/gotify_icon_button"
+            android:layout_height="@dimen/gotify_icon_button"
+            android:contentDescription="@string/messages_menu"
+            app:srcCompat="@drawable/gotify_messages_icon_menu" />
+
+    </LinearLayout>
+
+    <!--  连接状态条（原型 .connection：pad 11 13 / r13 / 1dp border）  -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="21dp"
+        app:cardBackgroundColor="@color/gotify_surface_soft"
+        app:cardCornerRadius="13dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/gotify_divider"
+        app:strokeWidth="@dimen/gotify_border">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="13dp"
+            android:paddingTop="11dp"
+            android:paddingEnd="13dp"
+            android:paddingBottom="11dp">
+
+            <!--  9dp 圆点 + 4dp 光环  -->
+            <View
+                android:id="@+id/connection_dot"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:background="@drawable/gotify_messages_dot_ripple" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/connection_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/messages_connecting"
+                    android:textColor="@color/gotify_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/connection_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/gotify_text_secondary"
+                    android:textSize="11sp"
+                    tools:text="https://gotify.example" />
+
+            </LinearLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/connection_live"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/gotify_messages_live_badge"
+                android:letterSpacing="0.08"
+                android:paddingStart="6dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="2dp"
+                android:text="@string/messages_live"
+                android:textColor="@color/gotify_success"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!--  分区头：kicker + 当前筛选名 + 计数  -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="true"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingStart="22dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="22dp"
+        android:paddingBottom="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/messages_kicker_inbox"
+                android:textAppearance="@style/TextAppearance.Gotify.Kicker.Brand" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/section_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/messages_drawer_all"
+                android:textAppearance="@style/TextAppearance.Gotify.ScreenTitle" />
+
+        </LinearLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/section_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:textAppearance="@style/TextAppearance.Gotify.Meta"
+            tools:text="5 条" />
+
+    </LinearLayout>
+
+    <!--  应用筛选（原型 .filters：横向滚动，隐藏滚动条）  -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingStart="21dp"
+        android:paddingEnd="21dp"
+        android:paddingBottom="15dp"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/application_filters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="8dp"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:singleSelection="true" />
+
+    </HorizontalScrollView>
+
+    <!--  搜索框（原型 .search：r11 / bg surface-soft / 左侧 17dp 放大镜）  -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/gotify_search_height"
+        android:layout_marginStart="21dp"
+        android:layout_marginEnd="21dp"
+        android:background="@drawable/gotify_bg_search"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="11dp"
+        android:paddingEnd="11dp">
+
+        <ImageView
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/gotify_messages_search" />
+
+        <EditText
+            android:id="@+id/message_search"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:contentDescription="@string/messages_search_scope"
+            android:hint="@string/messages_search_hint"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:singleLine="true"
+            android:textColor="@color/gotify_text_primary"
+            android:textColorHint="@color/gotify_text_secondary"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/gotify_divider" />
 
 </com.google.android.material.appbar.AppBarLayout>

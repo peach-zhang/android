@@ -4,4 +4,41 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">166dp</dimen>
+
+    <!--  ============================================================  -->
+    <!--  Gotify 设计系统：尺寸。源自 concept 原型，CSS px 与 dp 1:1  -->
+    <!--  ============================================================  -->
+    <!--  间距阶梯  -->
+    <dimen name="gotify_space_1">4dp</dimen>
+    <dimen name="gotify_space_2">8dp</dimen>
+    <dimen name="gotify_space_3">12dp</dimen>
+    <dimen name="gotify_space_4">16dp</dimen>
+    <dimen name="gotify_space_5">20dp</dimen>
+    <dimen name="gotify_space_6">24dp</dimen>
+    <!--  页面内边距  -->
+    <dimen name="gotify_page_padding">21dp</dimen>
+    <dimen name="gotify_page_padding_login">23dp</dimen>
+    <dimen name="gotify_page_padding_top">18dp</dimen>
+    <dimen name="gotify_page_padding_bottom">48dp</dimen>
+    <!--  圆角  -->
+    <dimen name="gotify_radius_badge">5dp</dimen>
+    <dimen name="gotify_radius_small">8dp</dimen>
+    <dimen name="gotify_radius_button">10dp</dimen>
+    <dimen name="gotify_radius_field">10dp</dimen>
+    <dimen name="gotify_radius_panel">12dp</dimen>
+    <dimen name="gotify_radius_card">12dp</dimen>
+    <dimen name="gotify_radius_dialog">16dp</dimen>
+    <dimen name="gotify_radius_pill">999dp</dimen>
+    <!--  控件尺寸  -->
+    <dimen name="gotify_border">1dp</dimen>
+    <dimen name="gotify_topbar_height">56dp</dimen>
+    <dimen name="gotify_icon_button">40dp</dimen>
+    <dimen name="gotify_button_height">44dp</dimen>
+    <dimen name="gotify_field_height">46dp</dimen>
+    <dimen name="gotify_search_height">40dp</dimen>
+    <dimen name="gotify_pref_row_height">61dp</dimen>
+    <dimen name="gotify_appicon">34dp</dimen>
+    <dimen name="gotify_fab">52dp</dimen>
+    <dimen name="gotify_icon">20dp</dimen>
+    <dimen name="gotify_icon_small">16dp</dimen>
 </resources>

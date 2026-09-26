@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  「LIVE」小标签背景（原型 .live 仅为文字，这里补一层极浅底色以保持点击/阅读分区）  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/gotify_surface" />
+    <corners android:radius="@dimen/gotify_radius_pill" />
+</shape>

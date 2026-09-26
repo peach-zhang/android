@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/gotify_surface_soft">
+    <item>
+        <layer-list>
+            <item android:drawable="@color/gotify_surface" />
+            <item
+                android:drawable="@color/gotify_divider"
+                android:gravity="bottom"
+                android:height="@dimen/gotify_border" />
+        </layer-list>
+    </item>
+</ripple>

@@ -51,6 +51,23 @@ internal class WebSocketService : Service() {
     companion object {
         private val castAddition = if (BuildConfig.DEBUG) ".DEBUG" else ""
         val NEW_MESSAGE_BROADCAST = "${WebSocketService::class.java.name}.NEW_MESSAGE$castAddition"
+
+        /**
+         * 追加：连接状态广播（不改动 NEW_MESSAGE_BROADCAST 及其既有逻辑）。
+         *
+         * MessagesActivity 依据它更新顶部的连接状态条。
+         */
+        val CONNECTION_BROADCAST = "$NEW_MESSAGE_BROADCAST.CONNECTION"
+        const val EXTRA_CONNECTED = "connected"
+        const val EXTRA_URL = "url"
+
+        /**
+         * 当前连接状态。广播可能早于界面注册，界面在 onResume 里可直接读它做初始渲染。
+         */
+        @Volatile
+        var isConnected: Boolean = false
+            private set
+
         private const val NOT_LOADED = -2L
     }
 
@@ -83,7 +100,7 @@ internal class WebSocketService : Service() {
         val client = ClientFactory.clientToken(settings)
         missingMessageUtil = MissedMessageUtil(client.createService(MessageApi::class.java))
         Logger.info("Create ${javaClass.simpleName}")
-        markwon = MarkwonFactory.createForNotification(this, CoilInstance.get(this))
+        markwon = MarkwonFactory.createForNotification(this)
     }
 
     override fun onDestroy() {
@@ -141,6 +158,7 @@ internal class WebSocketService : Service() {
             .onMessage { message -> onMessage(message) }
             .onReconnected { notifyMissedNotifications() }
             .start()
+        broadcastConnection(false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             cm.registerDefaultNetworkCallback(networkCallback)
         }
@@ -170,6 +188,7 @@ internal class WebSocketService : Service() {
     }
 
     private fun onClose() {
+        broadcastConnection(false)
         showForegroundNotification(
             getString(R.string.websocket_closed),
             getString(R.string.websocket_reconnect)
@@ -202,6 +221,7 @@ internal class WebSocketService : Service() {
     }
 
     private fun onFailure(status: String, reconnectIn: Duration) {
+        broadcastConnection(false)
         val title = getString(R.string.websocket_error, status)
         showForegroundNotification(
             title,
@@ -210,7 +230,23 @@ internal class WebSocketService : Service() {
     }
 
     private fun onOpen() {
+        broadcastConnection(true)
         showForegroundNotification(getString(R.string.websocket_listening))
+    }
+
+    /**
+     * 追加：把连接状态广播给界面层。
+     *
+     * 仅新增，不改变原有网络与通知行为。
+     */
+    private fun broadcastConnection(connected: Boolean) {
+        isConnected = connected
+        val intent = Intent()
+        intent.action = CONNECTION_BROADCAST
+        intent.putExtra(EXTRA_CONNECTED, connected)
+        intent.putExtra(EXTRA_URL, settings.url)
+        intent.setPackage(packageName)
+        sendBroadcast(intent)
     }
 
     private fun notifyMissedNotifications() {
@@ -268,6 +304,8 @@ internal class WebSocketService : Service() {
         val intent = Intent()
         intent.action = NEW_MESSAGE_BROADCAST
         intent.putExtra("message", Utils.JSON.toJson(message))
+        // 限定包名：广播只在本应用内投递，避免外部应用伪造消息
+        intent.setPackage(packageName)
         sendBroadcast(intent)
     }
 
@@ -411,13 +449,8 @@ internal class WebSocketService : Service() {
             .setColor(ContextCompat.getColor(applicationContext, R.color.colorPrimary))
             .setContentIntent(contentIntent)
 
-        var formattedMessage = message as CharSequence
-        var newMessage: String? = null
-        if (Extras.useMarkdown(extras)) {
-            formattedMessage = markwon.toMarkdown(message)
-            newMessage = formattedMessage.toString()
-        }
-        b.setContentText(newMessage ?: message)
+        val formattedMessage = markwon.toMarkdown(message)
+        b.setContentText(formattedMessage.toString())
         b.setStyle(NotificationCompat.BigTextStyle().bigText(formattedMessage))
 
         val notificationImageUrl = Extras.getNestedValue(

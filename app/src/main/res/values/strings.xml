@@ -79,29 +79,30 @@
     <string name="http_warning">Using HTTP is insecure and it\'s recommend to use HTTPS instead. Use your favorite search engine to get more information about this topic.</string>
     <string name="i_understand">I Understand</string>
     <string name="no_messages_yet">There are no messages, yet.\nSend a message to Gotify\nand it will appear here.</string>
+    <string name="learn_gotify">Learn how to send messages</string>
     <string name="title_activity_settings">Settings</string>
     <string name="settings_appearance">Appearance</string>
     <string name="setting_theme">Theme</string>
-    <string name="setting_key_theme">theme</string>
+    <string name="setting_key_theme" translatable="false">theme</string>
     <string name="setting_message_layout">Message layout</string>
-    <string name="setting_key_message_layout">message_layout</string>
+    <string name="setting_key_message_layout" translatable="false">message_layout</string>
     <string name="setting_restart_dialog_title">Restart App?</string>
     <string name="setting_restart_dialog_message">The change will be effective on next app start.\n\nDo you want to restart now?</string>
     <string name="setting_restart_dialog_button1">Restart</string>
     <string name="setting_restart_dialog_button2">Later</string>
     <string name="setting_time_format">Time format</string>
-    <string name="setting_key_time_format">time_format</string>
+    <string name="setting_key_time_format" translatable="false">time_format</string>
     <string name="setting_notifications">Notifications</string>
     <string name="setting_notification_channels">Separate app notification channels</string>
-    <string name="setting_key_notification_channels">notification_channels</string>
-    <string name="setting_key_exclude_from_recent">exclude_from_recent</string>
+    <string name="setting_key_notification_channels" translatable="false">notification_channels</string>
+    <string name="setting_key_exclude_from_recent" translatable="false">exclude_from_recent</string>
     <string name="setting_exclude_from_recent">Exclude from recents</string>
     <string name="setting_intent_dialog_permission">Intent Action Permission</string>
-    <string name="setting_key_intent_dialog_permission">intent_dialog_permission</string>
+    <string name="setting_key_intent_dialog_permission" translatable="false">intent_dialog_permission</string>
     <string name="setting_summary_intent_dialog_permission">To always show incoming intent URLs, give permission to show this app on top of other apps.</string>
     <string name="setting_summary_intent_dialog_permission_granted">Permission granted.</string>
     <string name="setting_prompt_onreceive_intent">Confirm onReceive intents</string>
-    <string name="setting_key_prompt_onreceive_intent">prompt_onreceive_intent</string>
+    <string name="setting_key_prompt_onreceive_intent" translatable="false">prompt_onreceive_intent</string>
     <string name="setting_summary_prompt_onreceive_intent">If enabled, a dialog is shown before onReceive.intentUrl is executed.</string>
     <string name="push_message">Push message</string>
     <string name="appListDescription">App:</string>
@@ -121,16 +122,40 @@
     <string name="websocket_error">Error %s (see logs)</string>
     <string name="websocket_reconnect">Trying to reconnect in %s</string>
     <string name="setting_reconnect_delay">Reconnect Delay (Seconds)</string>
-    <string name="setting_key_reconnect_delay">reconnect_delay</string>
+    <string name="setting_key_reconnect_delay" translatable="false">reconnect_delay</string>
     <string name="setting_connection">Connection</string>
     <string name="setting_reconnect_interval_summary">Delay between reconnect attempts</string>
     <string name="setting_exponential_backoff_title">Exponential Backoff</string>
     <string name="setting_exponential_backoff_summary">Exponentially increase the reconnect delay for each reconnect attempt</string>
-    <string name="setting_key_exponential_backoff">reconnect_exponential_backoff</string>
+    <string name="setting_key_exponential_backoff" translatable="false">reconnect_exponential_backoff</string>
 
     <string name="notification_channel_title_foreground">Gotify foreground notification</string>
     <string name="notification_channel_title_min">Min priority messages (&lt;1)</string>
     <string name="notification_channel_title_low">Low priority messages (1–3)</string>
     <string name="notification_channel_title_normal">Normal priority messages (4–7)</string>
     <string name="notification_channel_title_high">High priority messages (>7)</string>
+
+    <string name="design_server_section">Connect to server</string>
+    <string name="design_auth_section">Choose a sign-in method</string>
+    <string name="design_server_hint">Enter the URL of your Gotify server, including https:// or http://.</string>
+    <string name="design_server_verified">Server found</string>
+    <string name="design_oidc_hint">Sign in using your server’s identity provider</string>
+    <string name="design_login_intro">Connect to your messages</string>
+    <string name="design_send_to">Send to</string>
+    <string name="design_message_content">Message content</string>
+    <string name="design_notification_priority">Notification priority</string>
+    <string name="design_send_preview">Message preview</string>
+    <string name="design_optional">Optional</string>
+    <string name="design_required">Required</string>
+    <string name="design_content_limit">%1$d / 2000</string>
+    <string name="design_priority_help">0 is the default. The notification channel depends on your device settings.</string>
+    <string name="design_search_logs">Search logs</string>
+    <string name="design_search_loaded_messages">Search loaded messages</string>
+    <string name="design_logs_original">Full log</string>
+    <string name="design_logs_clear_confirm">Clear local logs?</string>
+    <string name="design_logs_clear_description">This permanently removes the logs stored on this device.</string>
+    <string name="design_confirm_clear">Clear logs</string>
+    <string name="design_no_search_results">No matching results</string>
+    <string name="design_app_source">Application</string>
+    <string name="design_reconnect_seconds">%1$d seconds</string>
 </resources>

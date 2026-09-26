@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  发送消息页的浅色说明面板：原型 .priority-desc 与 .preview-empty（soft 底色、border-radius 9px、无描边）  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/gotify_surface_soft" />
+    <corners android:radius="9dp" />
+</shape>

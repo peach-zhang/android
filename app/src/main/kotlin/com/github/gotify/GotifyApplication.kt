@@ -2,7 +2,6 @@ package com.github.gotify
 
 import android.app.Application
 import android.app.NotificationManager
-import android.os.Build
 import androidx.preference.PreferenceManager
 import com.github.gotify.api.CertUtils
 import com.github.gotify.log.LoggerHelper
@@ -23,12 +22,10 @@ class GotifyApplication : Application() {
             .getString(getString(R.string.setting_key_theme), getString(R.string.theme_default))!!
         ThemeHelper.setTheme(this, theme)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationSupport.createForegroundChannel(
-                this,
-                this.getSystemService(NotificationManager::class.java)
-            )
-        }
+        NotificationSupport.createForegroundChannel(
+            this,
+            this.getSystemService(NotificationManager::class.java)
+        )
 
         val settings = Settings(this)
         if (settings.legacyCert != null) {

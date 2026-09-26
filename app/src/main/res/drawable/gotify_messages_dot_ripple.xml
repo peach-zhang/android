@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  已连接状态圆点：teal 9dp 圆点 + 4dp teal-soft 光环（原型用 box-shadow 模拟光环）  -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/gotify_success_soft">
+    <item android:id="@android:id/mask">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+    <item>
+        <layer-list>
+            <item android:drawable="@drawable/gotify_messages_connection_halo" />
+            <item
+                android:drawable="@drawable/gotify_messages_connection_dot"
+                android:gravity="center" />
+        </layer-list>
+    </item>
+</ripple>

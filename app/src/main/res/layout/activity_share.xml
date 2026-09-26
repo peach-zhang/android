@@ -1,152 +1,625 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--  Gotify 发送消息页（ShareActivity）。对应 concept 原型 gotify-send-concept.html 的 .phone 内部：
+      通用顶栏 + phone-scroll（intro / 发送到 / 消息内容 / 通知级别 / 发送前预览）+ 底部 footer。
+      数值取自原型 CSS，px 与 dp 1:1；原型中相邻兄弟节点的 margin 会折叠（CSS margin collapsing），
+      因此 section-head 在字段之后只需补 23 - 17 = 6dp。  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/gotify_page_background"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start">
+    android:orientation="vertical">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <!--  1. 顶栏：标题「发送消息」+ 返回箭头（原型 header.topbar）  -->
+    <include
+        android:id="@+id/app_bar"
+        layout="@layout/app_bar_simple"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content" />
 
-        <androidx.core.widget.NestedScrollView
+    <!--  2. phone-scroll：padding 18 21 45  -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingStart="@dimen/gotify_page_padding"
+        android:paddingTop="@dimen/gotify_page_padding_top"
+        android:paddingEnd="@dimen/gotify_page_padding"
+        android:paddingBottom="45dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <!--  3. intro 卡：bg brand_soft / r11 / pad 12 13 / 图标 17dp brand_deep  -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Gotify.Card.Soft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/gotify_brand_soft"
+                app:cardCornerRadius="11dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="13dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="13dp"
+                    android:paddingBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginTop="1dp"
+                        android:contentDescription="@null"
+                        app:srcCompat="@drawable/gotify_send_pulse"
+                        app:tint="@color/gotify_brand_deep" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="11dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/send_intro_title"
+                            android:textAppearance="@style/TextAppearance.Gotify.Small"
+                            android:textColor="@color/gotify_brand_deep"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/send_intro_body"
+                            android:textAppearance="@style/TextAppearance.Gotify.Caption"
+                            android:textColor="@color/gotify_brand_deep" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!--  4. section「发送到」（section-head：11sp 800 brand_deep + 右侧 1px 线）  -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginTop="23dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="20dp">
+                    android:text="@string/design_send_to"
+                    android:textAppearance="@style/TextAppearance.Gotify.SectionHead"
+                    android:textColor="@color/gotify_brand_deep" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:hint="@string/push_title_hint"
-                        android:inputType="text"
-                        android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginBottom="20dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/content"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/push_content_hint"
-                        android:inputType="textCapSentences|textMultiLine"
-                        android:maxLength="2000"
-                        android:maxLines="10" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginBottom="20dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edtTxtPriority"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:digits="0123456789"
-                        android:hint="@string/push_priority_hint"
-                        android:imeOptions="actionDone"
-                        android:inputType="numberSigned"
-                        android:maxLength="3"
-                        android:text="0" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginBottom="20dp">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/txtAppListDesc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/appListDescription" />
-
-                    <Spinner
-                        android:id="@+id/appSpinner"
-                        android:layout_width="wrap_content"
-                        android:layout_height="50dp"
-                        android:spinnerMode="dropdown"
-                        android:textSize="18sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/missingAppsContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:id="@+id/missingAppsIcon"
-                        android:layout_width="40dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0"
-                        app:srcCompat="@drawable/ic_info" />
-
-                    <Space
-                        android:layout_width="10dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/missingAppsText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0"
-                        android:text="@string/push_missing_app_info"
-                        android:textAlignment="center"
-                        android:visibility="visible" />
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/push_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|center_horizontal"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:text="@string/push_button"
-                    android:textColor="@android:color/white" />
-
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/gotify_divider" />
             </LinearLayout>
 
+            <!--  4a. field：应用 · 必选  -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="17dp"
+                android:orientation="vertical">
 
-        </androidx.core.widget.NestedScrollView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-        <include
-            android:id="@+id/app_bar_drawer"
-            layout="@layout/app_bar_drawer"
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/send_label_app"
+                        android:textAppearance="@style/TextAppearance.Gotify.FieldLabel" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/send_suffix_required"
+                        android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+                </LinearLayout>
+
+                <!--  应用选择控件：44dp / r10 / 1dp divider / 右侧下拉箭头，点击弹出应用选择对话框  -->
+                <LinearLayout
+                    android:id="@+id/app_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="7dp"
+                    android:background="@drawable/gotify_field"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/app_field_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/send_app_field_empty"
+                        android:textAppearance="@style/TextAppearance.Gotify.Body.Primary" />
+
+                    <ImageView
+                        android:layout_width="@dimen/gotify_icon_small"
+                        android:layout_height="@dimen/gotify_icon_small"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        app:srcCompat="@drawable/gotify_send_dropdown"
+                        app:tint="@color/gotify_text_secondary" />
+                </LinearLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/app_error_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:textAppearance="@style/TextAppearance.Gotify.Caption"
+                    android:textColor="@color/gotify_warning"
+                    android:visibility="gone"
+                    tools:text="请选择用于发送的应用。"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:text="@string/send_app_list_note"
+                    android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+            </LinearLayout>
+
+            <!--  5. section「消息内容」  -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/design_message_content"
+                    android:textAppearance="@style/TextAppearance.Gotify.SectionHead"
+                    android:textColor="@color/gotify_brand_deep" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/gotify_divider" />
+            </LinearLayout>
+
+            <!--  5a. field：标题 · 可选（单行输入 44dp）  -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="17dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/send_label_title"
+                        android:textAppearance="@style/TextAppearance.Gotify.FieldLabel" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/send_suffix_optional"
+                        android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/title_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="7dp"
+                    android:background="@drawable/gotify_field"
+                    android:gravity="center_vertical|start"
+                    android:hint="@string/send_title_placeholder"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:singleLine="true"
+                    android:textColor="@color/gotify_text_primary"
+                    android:textColorHint="@color/gotify_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!--  5b. field：正文 · 必填（min-h 118dp / max-h 240dp / lh 1.65 + 右下角计数）  -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="17dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/send_label_content"
+                        android:textAppearance="@style/TextAppearance.Gotify.FieldLabel" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/send_suffix_required"
+                        android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/content_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:background="@drawable/gotify_field"
+                    android:gravity="top|start"
+                    android:hint="@string/send_content_placeholder"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:lineSpacingMultiplier="1.65"
+                    android:maxHeight="240dp"
+                    android:maxLength="2000"
+                    android:minHeight="118dp"
+                    android:paddingStart="12dp"
+                    android:paddingTop="11dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="11dp"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/gotify_text_primary"
+                    android:textColorHint="@color/gotify_text_secondary"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/send_content_note"
+                        android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/content_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:fontFeatureSettings="tnum"
+                        android:textAppearance="@style/TextAppearance.Gotify.Caption"
+                        tools:text="0 / 2000" />
+                </LinearLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/content_error_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:textAppearance="@style/TextAppearance.Gotify.Caption"
+                    android:textColor="@color/gotify_warning"
+                    android:visibility="gone"
+                    tools:text="消息正文不能为空。"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <!--  6. section「通知级别」  -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/design_notification_priority"
+                    android:textAppearance="@style/TextAppearance.Gotify.SectionHead"
+                    android:textColor="@color/gotify_brand_deep" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/gotify_divider" />
+            </LinearLayout>
+
+            <!--  6a. field：优先级 · 数字（输入宽 90dp tabular + 右侧实时说明卡 r9）  -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="17dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/send_label_priority"
+                        android:textAppearance="@style/TextAppearance.Gotify.FieldLabel" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/send_suffix_number"
+                        android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/priority_input"
+                        android:layout_width="90dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/gotify_field"
+                        android:digits="0123456789"
+                        android:fontFeatureSettings="tnum"
+                        android:gravity="center_vertical|start"
+                        android:imeOptions="actionDone"
+                        android:inputType="number"
+                        android:maxLength="3"
+                        android:maxLines="1"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:singleLine="true"
+                        android:textColor="@color/gotify_text_primary"
+                        android:textColorHint="@color/gotify_text_secondary"
+                        android:textSize="12sp"
+                        tools:text="0" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/priority_description"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/gotify_send_soft_panel"
+                        android:paddingStart="11dp"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="11dp"
+                        android:paddingBottom="10dp"
+                        android:textAppearance="@style/TextAppearance.Gotify.Caption"
+                        tools:text="默认级别 · 数值 0" />
+                </LinearLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/send_priority_help"
+                    android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/priority_error_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:textAppearance="@style/TextAppearance.Gotify.Caption"
+                    android:textColor="@color/gotify_warning"
+                    android:visibility="gone"
+                    tools:text="优先级需要是最多三位的非负整数。"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <!--  7. section「发送前预览」  -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/send_preview_section"
+                    android:textAppearance="@style/TextAppearance.Gotify.SectionHead"
+                    android:textColor="@color/gotify_brand_deep" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/gotify_divider" />
+            </LinearLayout>
+
+            <!--  7a. 预览卡：bg surface_soft / r11 / 1dp divider / pad 12，appicon 34dp r10  -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/preview_card"
+                style="@style/Widget.Gotify.Card.Soft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/gotify_surface_soft"
+                app:cardCornerRadius="11dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gotify_divider"
+                app:strokeWidth="@dimen/gotify_border">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/preview_icon"
+                        android:layout_width="@dimen/gotify_appicon"
+                        android:layout_height="@dimen/gotify_appicon"
+                        android:background="@drawable/gotify_send_icon_background"
+                        android:fontFamily="sans-serif-black"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:textColor="@color/gotify_brand_deep"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        tools:text="部" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/preview_app_name"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:textAppearance="@style/TextAppearance.Gotify.Small"
+                                android:textColor="@color/gotify_text_primary"
+                                android:textStyle="bold"
+                                tools:text="部署通知" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="7dp"
+                                android:maxLines="1"
+                                android:text="@string/send_preview_now"
+                                android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+                        </LinearLayout>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/preview_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:ellipsize="end"
+                            android:lineSpacingMultiplier="1.45"
+                            android:maxLines="2"
+                            android:textAppearance="@style/TextAppearance.Gotify.CardTitle"
+                            tools:text="构建已完成" />
+
+                        <!--  正文最多约 92dp（原型 max-height:92px + 溢出截断）  -->
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/preview_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:ellipsize="end"
+                            android:lineSpacingMultiplier="1.6"
+                            android:maxLines="5"
+                            android:textAppearance="@style/TextAppearance.Gotify.Small"
+                            tools:text="Android 开发版构建成功。\n可以开始检查安装与功能。" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!--  7b. 无可用应用空态：pad 13 / bg surface_soft / r9  -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/preview_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/gotify_send_soft_panel"
+                android:padding="13dp"
+                android:text="@string/send_preview_empty"
+                android:textAppearance="@style/TextAppearance.Gotify.Small"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!--  8. postscript  -->
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/send_postscript"
+                android:textAppearance="@style/TextAppearance.Gotify.Caption" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!--  9. footer：顶部 1px 线 + pad 11 21 13 + 主按钮占满  -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gotify_surface"
+        android:orientation="vertical">
+
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</androidx.drawerlayout.widget.DrawerLayout>
+            android:layout_height="@dimen/gotify_border"
+            android:background="@color/gotify_divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/gotify_page_padding"
+            android:paddingTop="11dp"
+            android:paddingEnd="@dimen/gotify_page_padding"
+            android:paddingBottom="13dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/send_button"
+                style="@style/Widget.Gotify.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/send_button" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

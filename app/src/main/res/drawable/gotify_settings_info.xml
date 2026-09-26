@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  设置页 note-card 左侧信息图标（concept 原型 .note-card svg，16dp）。  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,3A9,9 0,1 0,12 21A9,9 0,1 0,12 3M12,11L12,16M12,8L12,8.01"
+        android:strokeColor="@color/gotify_success"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.8" />
+</vector>

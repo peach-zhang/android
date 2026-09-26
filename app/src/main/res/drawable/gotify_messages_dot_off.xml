@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  未连接状态圆点：warning 色圆点 + warning-soft 光环  -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/gotify_messages_connection_halo_off" />
+    <item
+        android:drawable="@drawable/gotify_messages_connection_dot_off"
+        android:gravity="center" />
+</layer-list>

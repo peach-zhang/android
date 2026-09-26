@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  抽屉「全部消息」图标（原型 drawer-item svg：M4 5h16v14H4zM8 9h8m-8 4h8）  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M4,5L20,5L20,19L4,19Z"
+        android:strokeColor="@color/gotify_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.8" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M8,9L16,9M8,13L16,13"
+        android:strokeColor="@color/gotify_text_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.8" />
+</vector>

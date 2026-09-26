@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  消息页（gotify-messages-concept.html）新增文案。  -->
+<resources>
+    <!--  顶栏  -->
+    <string name="messages_title">Messages</string>
+    <string name="messages_refresh">Refresh</string>
+    <string name="messages_menu">Menu</string>
+
+    <!--  连接状态条  -->
+    <string name="messages_connected">Connected · receiving live</string>
+    <string name="messages_disconnected">Not connected · reconnecting</string>
+    <string name="messages_live">LIVE</string>
+    <string name="messages_connecting">Connecting…</string>
+
+    <!--  分区头  -->
+    <string name="messages_kicker_inbox">Inbox</string>
+    <string name="messages_count">%1$d items</string>
+
+    <!--  应用筛选与搜索  -->
+    <string name="messages_filter_all">All</string>
+    <string name="messages_search_hint">Search title or content</string>
+    <string name="messages_search_scope">Only messages already loaded are searched.</string>
+    <string name="messages_empty_search">No matching messages.\nTry another application or search term.</string>
+
+    <!--  消息卡片  -->
+    <string name="messages_day_today">Today</string>
+    <string name="messages_day_yesterday">Yesterday</string>
+    <string name="messages_source_label">App message</string>
+    <string name="messages_message_id">Message #%1$d</string>
+    <string name="messages_priority_high">High · %1$d</string>
+    <string name="messages_priority_normal">Normal · %1$d</string>
+    <string name="messages_priority_low">Low · %1$d</string>
+    <string name="messages_expand">Show details</string>
+    <string name="messages_collapse">Hide details</string>
+
+    <!--  展开详情  -->
+    <string name="messages_copy_content">Copy content</string>
+    <string name="messages_delete">Delete message</string>
+    <string name="messages_copied">Message content copied</string>
+
+    <!--  抽屉  -->
+    <string name="messages_drawer_subtitle">Notifications and messages at a glance</string>
+    <string name="messages_drawer_sources">Message sources</string>
+    <string name="messages_drawer_more">More</string>
+    <string name="messages_drawer_all">All messages</string>
+    <string name="messages_drawer_send">Send message</string>
+    <string name="messages_drawer_settings">Settings</string>
+    <string name="messages_drawer_logs">Logs</string>
+    <string name="messages_drawer_logout">Logout</string>
+    <string name="messages_delete_failed">Delete failed</string>
+</resources>

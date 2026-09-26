@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  连接状态圆点光环（原型 box-shadow:0 0 0 4px teal-soft）  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/gotify_success_soft" />
+</shape>

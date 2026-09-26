@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Gotify 发送消息页（ShareActivity）文案。对应 concept 原型 gotify-send-concept.html。
+      共用文案（design_send_to / design_message_content / design_notification_priority /
+      design_content_limit）直接引用 values/strings.xml。  -->
+<resources>
+    <string name="send_title">Send message</string>
+
+    <!--  intro 卡（原型 .intro）  -->
+    <string name="send_intro_title">Push to your own Gotify</string>
+    <string name="send_intro_body">The message is sent to the Gotify server you are signed in to.</string>
+
+    <!--  发送到（原型：应用 · 必选）  -->
+    <string name="send_label_app">Application</string>
+    <string name="send_suffix_required">· Required</string>
+    <string name="send_app_field_empty">Choose an application</string>
+    <string name="send_app_dialog_title">Choose an application</string>
+    <string name="send_app_list_note">The application list comes from the server you are signed in to.</string>
+    <string name="send_error_app_missing">Select the application you want to send with.</string>
+
+    <!--  消息内容（原型：标题 · 可选 / 正文 · 必填，上限 2000 字）  -->
+    <string name="send_label_title">Title</string>
+    <string name="send_suffix_optional">· Optional</string>
+    <string name="send_title_placeholder">For example: Service is back up</string>
+    <string name="send_label_content">Content</string>
+    <string name="send_content_placeholder">Enter the message to send</string>
+    <string name="send_content_note">Multi-line text and raw Markdown are supported.</string>
+    <string name="send_error_content_empty">The message content must not be empty.</string>
+
+    <!--  通知级别（原型：优先级 · 数字）  -->
+    <string name="send_label_priority">Priority</string>
+    <string name="send_suffix_number">· Number</string>
+    <string name="send_priority_desc_default">Default level · value 0</string>
+    <string name="send_priority_desc_low">Low priority · value %1$d</string>
+    <string name="send_priority_desc_normal">Normal priority · value %1$d</string>
+    <string name="send_priority_desc_high">High priority · value %1$d</string>
+    <string name="send_priority_desc_empty">Enter a number</string>
+    <string name="send_priority_desc_invalid">Enter three digits at most</string>
+    <string name="send_priority_help">0 is the default; 1–3 is low, 4–7 normal and 8 or higher is high. The exact split depends on your server and device settings.</string>
+    <string name="send_error_priority_invalid">The priority must be a non-negative integer with three digits at most.</string>
+
+    <!--  发送前预览（原型 .preview / .preview-empty / .postscript）  -->
+    <string name="send_preview_section">Before you send</string>
+    <string name="send_preview_no_app">No application selected</string>
+    <string name="send_preview_now">Now</string>
+    <string name="send_preview_no_title">Message without a title</string>
+    <string name="send_preview_placeholder">The text layout shows up here once you type a message</string>
+    <string name="send_preview_icon_placeholder">◎</string>
+    <string name="send_preview_empty">There are no applications available on the server, so the message cannot be sent. Create an application in the Gotify Web UI first.</string>
+    <string name="send_postscript">The preview is plain text; the real app can render the message body as Markdown, and the notification style depends on your device settings.</string>
+
+    <!--  底部主按钮与反馈  -->
+    <string name="send_button">Send</string>
+    <string name="send_button_sending">Sending…</string>
+    <string name="send_success">Message sent.</string>
+    <string name="send_failed">Could not send the message, see the logs for details.</string>
+</resources>

@@ -4,18 +4,17 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
-    id("org.jmailen.kotlinter") version "5.1.1"
+    id("org.jmailen.kotlinter") version "5.7.0"
 }
 
 android {
     namespace = "com.github.gotify"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = "com.github.gotify"
         minSdk = 26
         targetSdk = 36
-        versionCode = 36
+        versionCode = 37
         versionName = "2.10.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -26,7 +25,7 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android.txt"),
+                getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
@@ -39,15 +38,11 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        resValues = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
     }
     packaging {
         resources {
@@ -57,6 +52,12 @@ android {
     lint {
         disable.add("GoogleAppIndexingWarning")
         lintConfig = file("../lint.xml")
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
@@ -79,11 +80,11 @@ dependencies {
     val markwonVersion = "4.6.2"
     val tinylogVersion = "2.7.0"
     implementation(project(":client"))
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.8.0")
+    implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation("com.google.android.material:material:1.14.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.2")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
     implementation("androidx.vectordrawable:vectordrawable:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
 

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  设置页（gotify-settings-concept.html）新增文案的中文翻译，文案取自原型原文。
+      选项数组的 item 只是 @string 引用，因此数组本身无需在此重复声明。  -->
+<resources>
+    <!--  页面说明  -->
+    <string name="settings_intro_title">让 Gotify 按你的方式工作</string>
+    <string name="settings_intro_description">这些设置会保存在本机。</string>
+
+    <!--  外观分组  -->
+    <string name="settings_theme_summary">选择浅色、深色或跟随系统</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">浅色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_theme_dialog_title">选择主题</string>
+    <string name="settings_theme_dialog_message">主题会立即生效并保存在本机。</string>
+
+    <string name="settings_message_layout_summary">切换后需重启应用才能生效</string>
+    <string name="settings_message_layout_dialog_message">消息布局会在应用下次启动时生效。</string>
+
+    <string name="settings_time_format_summary">选择相对时间或绝对时间</string>
+    <string name="settings_time_format_dialog_message">相对时间显示消息到达距今多久。</string>
+
+    <string name="settings_exclude_from_recent_summary">切到其他应用时不出现在最近任务列表</string>
+
+    <!--  通知分组  -->
+    <string name="settings_notification_channels_summary">让每个 Gotify 应用拥有独立渠道 · 需重启</string>
+    <string name="settings_intent_permission_summary">需要到系统设置中授予悬浮窗权限</string>
+    <string name="settings_permission_granted">已授权</string>
+    <string name="settings_permission_not_granted">未授权</string>
+    <string name="settings_intent_permission_dialog_title">系统授权</string>
+    <string name="settings_intent_permission_dialog_message">若要始终显示收到的 intent URL，请在系统设置中授予此应用「在其他应用上层显示」的权限。</string>
+    <string name="settings_intent_permission_dialog_positive">前往设置</string>
+    <string name="settings_prompt_onreceive_summary">打开收到的链接前显示确认提示</string>
+
+    <!--  连接分组  -->
+    <string name="settings_reconnect_delay_summary">断开连接后再次尝试的起始间隔</string>
+    <string name="settings_reconnect_dialog_title">重连延迟</string>
+    <string name="settings_reconnect_dialog_message">设置断线后首次重试的间隔。</string>
+    <string name="settings_reconnect_dialog_hint">请输入 5–1200 秒。</string>
+    <string name="settings_reconnect_dialog_error">请输入 5–1200 之间的整数。</string>
+    <string name="settings_exponential_backoff_summary">连续重连失败时逐步延长等待时间</string>
+    <string name="settings_note_connection_title">关于连接</string>
+    <string name="settings_note_connection_body">修改连接相关设置后会重新建立连接；未登录时不会连接服务器。</string>
+
+    <!--  通用  -->
+    <string name="settings_dialog_confirm">确定</string>
+    <string name="settings_back">返回</string>
+</resources>

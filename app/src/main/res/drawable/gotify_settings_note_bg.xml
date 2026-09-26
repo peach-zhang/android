@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  设置页 note-card 背景（concept 原型 .note-card：success-soft / r10 / pad 12）。  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/gotify_success_soft" />
+    <corners android:radius="@dimen/gotify_radius_button" />
+</shape>

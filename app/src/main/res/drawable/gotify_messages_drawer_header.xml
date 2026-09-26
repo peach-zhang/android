@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  抽屉头部背景：有意偏差，夜间也用 brand_filled 保证白字可读  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/gotify_brand_filled" />
+</shape>

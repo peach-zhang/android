@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  展开详情面板背景（原型 .details：surface_soft + r9）  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/gotify_surface_soft" />
+    <corners android:radius="9dp" />
+</shape>

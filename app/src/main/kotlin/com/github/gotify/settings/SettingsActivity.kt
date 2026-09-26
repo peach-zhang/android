@@ -1,255 +1,387 @@
 package com.github.gotify.settings
 
-import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.MenuItem
-import android.view.View
+import android.text.InputFilter
+import android.text.InputType
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.preference.ListPreference
-import androidx.preference.ListPreferenceDialogFragmentCompat
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import androidx.preference.SwitchPreferenceCompat
 import com.github.gotify.R
 import com.github.gotify.Utils
 import com.github.gotify.databinding.SettingsActivityBinding
 import com.github.gotify.service.WebSocketService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textview.MaterialTextView
 
-internal class SettingsActivity :
-    AppCompatActivity(),
-    OnSharedPreferenceChangeListener {
+/**
+ * 设置页（对应 gotify-settings-concept.html）。
+ *
+ * 使用自定义 View 布局而不是 PreferenceFragmentCompat：原型的设置行、
+ * 分组标题、说明卡片与 Preference 的默认样式差异过大。
+ * 键名与默认值与原 root_preferences.xml 完全一致，读写逻辑等价。
+ */
+internal class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: SettingsActivityBinding
+
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = SettingsActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.settings, SettingsFragment())
-            .commit()
-        setSupportActionBar(binding.appBarDrawer.toolbar)
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setDisplayShowCustomEnabled(true)
-        }
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        setupAppBar()
+        setupAppearance()
+        setupNotifications()
+        setupConnection()
+        renderIntentPermissionValue()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
-        return false
+    override fun onResume() {
+        super.onResume()
+        renderIntentPermissionValue()
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        if (sharedPreferences == null) return
-        when (key) {
-            getString(R.string.setting_key_theme) -> {
-                ThemeHelper.setTheme(
-                    this,
-                    sharedPreferences.getString(key, getString(R.string.theme_default))!!
-                )
-            }
+    private fun setupAppBar() {
+        binding.appBar.toolbar.apply {
+            setTitle(R.string.title_activity_settings)
+            setNavigationIcon(R.drawable.gotify_settings_back)
+            setNavigationContentDescription(R.string.settings_back)
+            setNavigationOnClickListener { finish() }
         }
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                findPreference<SwitchPreferenceCompat>(
-                    getString(R.string.setting_key_notification_channels)
-                )?.isEnabled = true
+    private fun setupAppearance() {
+        renderThemeValue()
+        renderMessageLayoutValue()
+        renderTimeFormatValue()
+        binding.rowTheme.setOnClickListener { showThemeDialog() }
+        binding.rowMessageLayout.setOnClickListener { showMessageLayoutDialog() }
+        binding.rowTimeFormat.setOnClickListener { showTimeFormatDialog() }
+
+        binding.switchExcludeFromRecent.isChecked =
+            booleanPreference(R.string.setting_key_exclude_from_recent, false)
+        binding.switchExcludeFromRecent.setOnCheckedChangeListener { _, isChecked ->
+            setBooleanPreference(R.string.setting_key_exclude_from_recent, isChecked)
+            Utils.setExcludeFromRecent(this, isChecked)
+        }
+        binding.rowExcludeFromRecent.setOnClickListener {
+            binding.switchExcludeFromRecent.toggle()
+        }
+    }
+
+    private fun setupNotifications() {
+        val channelsSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+        binding.rowNotificationChannels.isEnabled = channelsSupported
+        binding.switchNotificationChannels.isEnabled = channelsSupported
+        if (channelsSupported) {
+            binding.switchNotificationChannels.isChecked =
+                booleanPreference(R.string.setting_key_notification_channels, false)
+            binding.switchNotificationChannels.setOnCheckedChangeListener { _, isChecked ->
+                setBooleanPreference(R.string.setting_key_notification_channels, isChecked)
+                showRestartDialog()
             }
-            findPreference<androidx.preference.EditTextPreference>(
-                getString(R.string.setting_key_reconnect_delay)
-            )?.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { _, newValue ->
-                    val value = (newValue as String).trim().toIntOrNull() ?: 60
-                    if (value !in 5..1200) {
-                        Utils.showSnackBar(
-                            requireActivity(),
-                            "Please enter a value between 5 and 1200"
-                        )
-                        return@OnPreferenceChangeListener false
-                    }
-
-                    requestWebSocketRestart()
-                    true
-                }
-            findPreference<SwitchPreferenceCompat>(
-                getString(R.string.setting_key_exponential_backoff)
-            )?.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { _, _ ->
-                    requestWebSocketRestart()
-                    true
-                }
-        }
-
-        private fun requestWebSocketRestart() {
-            val intent = Intent(requireContext(), WebSocketService::class.java)
-            requireContext().startService(intent)
-        }
-
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-            findPreference<ListPreference>(
-                getString(R.string.setting_key_message_layout)
-            )?.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { _, _ ->
-                    showRestartDialog()
-                    true
-                }
-            findPreference<SwitchPreferenceCompat>(
-                getString(R.string.setting_key_notification_channels)
-            )?.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { _, _ ->
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                        return@OnPreferenceChangeListener false
-                    }
-                    showRestartDialog()
-                    true
-                }
-            findPreference<SwitchPreferenceCompat>(
-                getString(R.string.setting_key_exclude_from_recent)
-            )?.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { _, value ->
-                    Utils.setExcludeFromRecent(requireContext(), value as Boolean)
-                    return@OnPreferenceChangeListener true
-                }
-            findPreference<SwitchPreferenceCompat>(
-                getString(R.string.setting_key_intent_dialog_permission)
-            )?.let {
-                it.setOnPreferenceChangeListener { _, _ ->
-                    openSystemAlertWindowPermissionPage()
-                }
+            binding.rowNotificationChannels.setOnClickListener {
+                binding.switchNotificationChannels.toggle()
             }
-            checkSystemAlertWindowPermission()
+        } else {
+            binding.rowNotificationChannels.alpha = DISABLED_ALPHA
         }
 
-        override fun onDisplayPreferenceDialog(preference: Preference) {
-            if (preference is ListPreference) {
-                showListPreferenceDialog(preference)
+        binding.rowIntentPermission.setOnClickListener { showIntentPermissionDialog() }
+
+        binding.switchPromptOnreceive.isChecked =
+            booleanPreference(R.string.setting_key_prompt_onreceive_intent, true)
+        binding.switchPromptOnreceive.setOnCheckedChangeListener { _, isChecked ->
+            setBooleanPreference(R.string.setting_key_prompt_onreceive_intent, isChecked)
+        }
+        binding.rowPromptOnreceive.setOnClickListener {
+            binding.switchPromptOnreceive.toggle()
+        }
+    }
+
+    private fun setupConnection() {
+        renderReconnectDelayValue()
+        binding.rowReconnectDelay.setOnClickListener { showReconnectDelayDialog() }
+
+        binding.switchExponentialBackoff.isChecked =
+            booleanPreference(R.string.setting_key_exponential_backoff, true)
+        binding.switchExponentialBackoff.setOnCheckedChangeListener { _, isChecked ->
+            setBooleanPreference(R.string.setting_key_exponential_backoff, isChecked)
+            requestWebSocketRestart()
+        }
+        binding.rowExponentialBackoff.setOnClickListener {
+            binding.switchExponentialBackoff.toggle()
+        }
+    }
+
+    private fun renderThemeValue() {
+        val entries = resources.getStringArray(R.array.settings_theme_entries)
+        val values = resources.getStringArray(R.array.settings_theme_values)
+        val index = values.indexOfFirst { it == currentTheme() }.coerceAtLeast(0)
+        binding.valueTheme.text = entries[index]
+    }
+
+    private fun renderMessageLayoutValue() {
+        val compact = getString(R.string.message_layout_value_compact)
+        binding.valueMessageLayout.setText(
+            if (currentMessageLayout() == compact) {
+                R.string.message_layout_entry_compact
             } else {
-                super.onDisplayPreferenceDialog(preference)
+                R.string.message_layout_entry_normal
             }
-        }
+        )
+    }
 
-        override fun onResume() {
-            super.onResume()
-            checkSystemAlertWindowPermission()
-        }
-
-        private fun openSystemAlertWindowPermissionPage(): Boolean {
-            Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                "package:${requireContext().packageName}".toUri()
-            ).apply {
-                startActivity(this)
+    private fun renderTimeFormatValue() {
+        val absolute = getString(R.string.time_format_value_absolute)
+        binding.valueTimeFormat.setText(
+            if (currentTimeFormat() == absolute) {
+                R.string.time_format_entry_absolute
+            } else {
+                R.string.time_format_entry_relative
             }
-            return true
-        }
+        )
+    }
 
-        private fun checkSystemAlertWindowPermission() {
-            findPreference<SwitchPreferenceCompat>(
-                getString(R.string.setting_key_intent_dialog_permission)
-            )?.let {
-                val canDrawOverlays = Settings.canDrawOverlays(requireContext())
-                it.isChecked = canDrawOverlays
-                it.summary = if (canDrawOverlays) {
-                    getString(R.string.setting_summary_intent_dialog_permission_granted)
-                } else {
-                    getString(R.string.setting_summary_intent_dialog_permission)
-                }
+    private fun renderReconnectDelayValue() {
+        binding.valueReconnectDelay.text =
+            getString(R.string.design_reconnect_seconds, currentReconnectDelay())
+    }
+
+    private fun renderIntentPermissionValue() {
+        binding.valueIntentPermission.setText(
+            if (Settings.canDrawOverlays(this)) {
+                R.string.settings_permission_granted
+            } else {
+                R.string.settings_permission_not_granted
             }
-        }
+        )
+    }
 
-        private fun showListPreferenceDialog(preference: ListPreference) {
-            val dialogFragment = MaterialListPreference()
-            dialogFragment.arguments = Bundle(1).apply { putString("key", preference.key) }
-            @Suppress("DEPRECATION") // https://issuetracker.google.com/issues/181793702#comment3
-            dialogFragment.setTargetFragment(this, 0)
-            dialogFragment.show(
-                parentFragmentManager,
-                "androidx.preference.PreferenceFragment.DIALOG"
+    private fun showThemeDialog() {
+        showChoiceDialog(
+            R.string.settings_theme_dialog_title,
+            R.string.settings_theme_dialog_message,
+            R.array.settings_theme_entries,
+            R.array.settings_theme_values,
+            currentTheme()
+        ) { value ->
+            setStringPreference(R.string.setting_key_theme, value)
+            renderThemeValue()
+            ThemeHelper.setTheme(this, value)
+        }
+    }
+
+    private fun showMessageLayoutDialog() {
+        showChoiceDialog(
+            R.string.setting_message_layout,
+            R.string.settings_message_layout_dialog_message,
+            R.array.settings_message_layout_entries,
+            R.array.settings_message_layout_values,
+            currentMessageLayout()
+        ) { value ->
+            setStringPreference(R.string.setting_key_message_layout, value)
+            renderMessageLayoutValue()
+            showRestartDialog()
+        }
+    }
+
+    private fun showTimeFormatDialog() {
+        showChoiceDialog(
+            R.string.setting_time_format,
+            R.string.settings_time_format_dialog_message,
+            R.array.settings_time_format_entries,
+            R.array.settings_time_format_values,
+            currentTimeFormat()
+        ) { value ->
+            setStringPreference(R.string.setting_key_time_format, value)
+            renderTimeFormatValue()
+        }
+    }
+
+    private fun showChoiceDialog(
+        titleRes: Int,
+        messageRes: Int,
+        entriesRes: Int,
+        valuesRes: Int,
+        currentValue: String,
+        onSelected: (String) -> Unit
+    ) {
+        val values = resources.getStringArray(valuesRes)
+        val checked = values.indexOfFirst { it == currentValue }.coerceAtLeast(0)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(titleRes)
+            .setMessage(messageRes)
+            .setSingleChoiceItems(entriesRes, checked) { dialog, which ->
+                dialog.dismiss()
+                onSelected(values[which])
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.settings_dialog_confirm, null)
+            .show()
+    }
+
+    private fun showReconnectDelayDialog() {
+        val field = EditText(this)
+        field.inputType = InputType.TYPE_CLASS_NUMBER
+        field.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(MAX_DELAY_DIGITS))
+        field.setText(currentReconnectDelay().toString())
+        field.setSelection(field.text.length)
+        field.setTextColor(ContextCompat.getColor(this, R.color.gotify_text_primary))
+        field.textSize = 12f
+        field.minHeight = dp(39)
+        field.setPadding(dp(10), dp(8), dp(10), dp(8))
+        field.setBackgroundResource(R.drawable.gotify_settings_input_bg)
+
+        val hint = MaterialTextView(this)
+        hint.setText(R.string.settings_reconnect_dialog_hint)
+        hint.setTextColor(ContextCompat.getColor(this, R.color.gotify_text_secondary))
+        hint.textSize = 10f
+        hint.setPadding(dp(2), dp(6), dp(2), 0)
+
+        val content = LinearLayout(this)
+        content.orientation = LinearLayout.VERTICAL
+        content.addView(
+            field,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
             )
-        }
+        )
+        content.addView(hint)
 
-        private fun showRestartDialog() {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.setting_restart_dialog_title)
-                .setMessage(R.string.setting_restart_dialog_message)
-                .setPositiveButton(getString(R.string.setting_restart_dialog_button1)) { _, _ ->
-                    restartApp()
-                }
-                .setNegativeButton(getString(R.string.setting_restart_dialog_button2), null)
-                .show()
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.settings_reconnect_dialog_title)
+            .setMessage(R.string.settings_reconnect_dialog_message)
+            .setView(content)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.settings_dialog_confirm, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                applyReconnectDelay(field, hint, dialog)
+            }
         }
-
-        private fun restartApp() {
-            val packageManager = requireContext().packageManager
-            val packageName = requireContext().packageName
-            val intent = packageManager.getLaunchIntentForPackage(packageName)
-            val componentName = intent!!.component
-            val mainIntent = Intent.makeRestartActivityTask(componentName)
-            startActivity(mainIntent)
-            Runtime.getRuntime().exit(0)
-        }
+        dialog.show()
     }
 
-    class MaterialListPreference : ListPreferenceDialogFragmentCompat() {
-        private var mWhichButtonClicked = 0
+    private fun applyReconnectDelay(field: EditText, hint: TextView, dialog: AlertDialog) {
+        val value = field.text.toString().trim().toIntOrNull()
+        if (value == null || value !in MIN_RECONNECT_DELAY..MAX_RECONNECT_DELAY) {
+            hint.setText(R.string.settings_reconnect_dialog_error)
+            hint.setTextColor(ContextCompat.getColor(this, R.color.gotify_danger))
+            return
+        }
+        setStringPreference(R.string.setting_key_reconnect_delay, value.toString())
+        renderReconnectDelayValue()
+        dialog.dismiss()
+        requestWebSocketRestart()
+    }
 
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            mWhichButtonClicked = DialogInterface.BUTTON_NEGATIVE
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(preference.dialogTitle)
-                .setPositiveButton(preference.positiveButtonText, this)
-                .setNegativeButton(preference.negativeButtonText, this)
-
-            val contentView = context?.let { onCreateDialogView(it) }
-            if (contentView != null) {
-                onBindDialogView(contentView)
-                builder.setView(contentView)
-            } else {
-                builder.setMessage(preference.dialogMessage)
+    private fun showIntentPermissionDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.settings_intent_permission_dialog_title)
+            .setMessage(R.string.settings_intent_permission_dialog_message)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.settings_intent_permission_dialog_positive) { _, _ ->
+                openSystemAlertWindowPermissionPage()
             }
-            onPrepareDialogBuilder(builder)
-            return builder.create()
-        }
+            .show()
+    }
 
-        override fun onClick(dialog: DialogInterface, which: Int) {
-            mWhichButtonClicked = which
-        }
+    private fun showRestartDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.setting_restart_dialog_title)
+            .setMessage(R.string.setting_restart_dialog_message)
+            .setNegativeButton(R.string.setting_restart_dialog_button2, null)
+            .setPositiveButton(R.string.setting_restart_dialog_button1) { _, _ -> restartApp() }
+            .show()
+    }
 
-        override fun onDismiss(dialog: DialogInterface) {
-            onDialogClosedWasCalledFromOnDismiss = true
-            super.onDismiss(dialog)
-        }
+    private fun openSystemAlertWindowPermissionPage() {
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            "package:$packageName".toUri()
+        )
+        startActivity(intent)
+    }
 
-        private var onDialogClosedWasCalledFromOnDismiss = false
+    /** 连接设置只在 WebSocketService 建立连接时读取，因此改值后要让服务重连一次。 */
+    private fun requestWebSocketRestart() {
+        ContextCompat.startForegroundService(this, Intent(this, WebSocketService::class.java))
+    }
 
-        override fun onDialogClosed(positiveResult: Boolean) {
-            if (onDialogClosedWasCalledFromOnDismiss) {
-                onDialogClosedWasCalledFromOnDismiss = false
-                super.onDialogClosed(mWhichButtonClicked == DialogInterface.BUTTON_POSITIVE)
-            } else {
-                super.onDialogClosed(positiveResult)
-            }
-        }
+    private fun restartApp() {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)
+        val componentName = intent!!.component
+        val mainIntent = Intent.makeRestartActivityTask(componentName)
+        startActivity(mainIntent)
+        Runtime.getRuntime().exit(0)
+    }
+
+    private fun currentTheme(): String {
+        return ThemeHelper.normalize(
+            stringPreference(R.string.setting_key_theme, ThemeHelper.THEME_SYSTEM)
+        )
+    }
+
+    private fun currentMessageLayout(): String {
+        return stringPreference(
+            R.string.setting_key_message_layout,
+            getString(R.string.message_layout_value_normal)
+        )
+    }
+
+    private fun currentTimeFormat(): String {
+        return stringPreference(
+            R.string.setting_key_time_format,
+            getString(R.string.time_format_value_relative)
+        )
+    }
+
+    private fun currentReconnectDelay(): Int {
+        val stored = stringPreference(
+            R.string.setting_key_reconnect_delay,
+            DEFAULT_RECONNECT_DELAY.toString()
+        )
+        val parsed = stored.trim().toIntOrNull() ?: DEFAULT_RECONNECT_DELAY
+        return parsed.coerceIn(MIN_RECONNECT_DELAY, MAX_RECONNECT_DELAY)
+    }
+
+    private fun booleanPreference(keyRes: Int, default: Boolean): Boolean {
+        return preferences.getBoolean(getString(keyRes), default)
+    }
+
+    private fun setBooleanPreference(keyRes: Int, value: Boolean) {
+        preferences.edit { putBoolean(getString(keyRes), value) }
+    }
+
+    private fun stringPreference(keyRes: Int, default: String): String {
+        return preferences.getString(getString(keyRes), default) ?: default
+    }
+
+    private fun setStringPreference(keyRes: Int, value: String) {
+        preferences.edit { putString(getString(keyRes), value) }
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    }
+
+    private companion object {
+        const val MIN_RECONNECT_DELAY = 5
+        const val MAX_RECONNECT_DELAY = 1200
+        const val DEFAULT_RECONNECT_DELAY = 60
+        const val MAX_DELAY_DIGITS = 4
+        const val DISABLED_ALPHA = 0.55f
     }
 }

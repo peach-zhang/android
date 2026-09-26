@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  设置页（gotify-settings-concept.html）新增文案与选项数组。
+      注意：主题偏好以稳定 key（system / light / dark）写入 SharedPreferences，
+      不再使用本地化文案，数组顺序与原型一致：跟随系统 / 浅色 / 深色。  -->
+<resources>
+    <!--  页面说明（原型 .intro）  -->
+    <string name="settings_intro_title">Make Gotify work your way</string>
+    <string name="settings_intro_description">These settings are saved on this device.</string>
+
+    <!--  外观分组  -->
+    <string name="settings_theme_summary">Choose light, dark, or follow the system</string>
+    <string name="settings_theme_system">Follow system</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_value_system" translatable="false">system</string>
+    <string name="settings_theme_value_light" translatable="false">light</string>
+    <string name="settings_theme_value_dark" translatable="false">dark</string>
+    <string-array name="settings_theme_entries">
+        <item>@string/settings_theme_system</item>
+        <item>@string/settings_theme_light</item>
+        <item>@string/settings_theme_dark</item>
+    </string-array>
+    <string-array name="settings_theme_values">
+        <item>@string/settings_theme_value_system</item>
+        <item>@string/settings_theme_value_light</item>
+        <item>@string/settings_theme_value_dark</item>
+    </string-array>
+    <string name="settings_theme_dialog_title">Choose theme</string>
+    <string name="settings_theme_dialog_message">The theme is applied immediately and saved on this device.</string>
+
+    <string name="settings_message_layout_summary">Restart the app to apply the change</string>
+    <string name="settings_message_layout_dialog_message">The layout is applied the next time the app starts.</string>
+    <string-array name="settings_message_layout_entries">
+        <item>@string/message_layout_entry_normal</item>
+        <item>@string/message_layout_entry_compact</item>
+    </string-array>
+    <string-array name="settings_message_layout_values">
+        <item>@string/message_layout_value_normal</item>
+        <item>@string/message_layout_value_compact</item>
+    </string-array>
+
+    <string name="settings_time_format_summary">Choose relative or absolute time</string>
+    <string name="settings_time_format_dialog_message">Relative time shows how long ago a message arrived.</string>
+    <string-array name="settings_time_format_entries">
+        <item>@string/time_format_entry_relative</item>
+        <item>@string/time_format_entry_absolute</item>
+    </string-array>
+    <string-array name="settings_time_format_values">
+        <item>@string/time_format_value_relative</item>
+        <item>@string/time_format_value_absolute</item>
+    </string-array>
+
+    <string name="settings_exclude_from_recent_summary">Hide this app in the recent tasks list</string>
+
+    <!--  通知分组  -->
+    <string name="settings_notification_channels_summary">Give each Gotify app its own channel · restart required</string>
+    <string name="settings_intent_permission_summary">Grant the display-over-other-apps permission in the system settings</string>
+    <string name="settings_permission_granted">Granted</string>
+    <string name="settings_permission_not_granted">Not granted</string>
+    <string name="settings_intent_permission_dialog_title">System permission</string>
+    <string name="settings_intent_permission_dialog_message">To always show incoming intent URLs, grant the permission to display this app on top of other apps in the system settings.</string>
+    <string name="settings_intent_permission_dialog_positive">Open settings</string>
+    <string name="settings_prompt_onreceive_summary">Show a confirmation before opening received links</string>
+
+    <!--  连接分组  -->
+    <string name="settings_reconnect_delay_summary">Initial interval before retrying after a disconnect</string>
+    <string name="settings_reconnect_dialog_title">Reconnect delay</string>
+    <string name="settings_reconnect_dialog_message">Set the interval before the first retry after the connection was lost.</string>
+    <string name="settings_reconnect_dialog_hint">Enter a value between 5 and 1200 seconds.</string>
+    <string name="settings_reconnect_dialog_error">Enter an integer between 5 and 1200.</string>
+    <string name="settings_exponential_backoff_summary">Increase the waiting time after repeated reconnect failures</string>
+    <string name="settings_note_connection_title">About the connection</string>
+    <string name="settings_note_connection_body">Changing connection settings reconnects the service; no connection is made while you are logged out.</string>
+
+    <!--  通用  -->
+    <string name="settings_dialog_confirm">OK</string>
+    <string name="settings_back">Back</string>
+</resources>

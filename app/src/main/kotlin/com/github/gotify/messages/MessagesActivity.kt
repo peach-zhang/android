@@ -11,13 +11,13 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -27,7 +27,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -57,6 +56,7 @@ import com.github.gotify.messages.provider.MessageWithImage
 import com.github.gotify.service.WebSocketService
 import com.github.gotify.settings.SettingsActivity
 import com.github.gotify.sharing.ShareActivity
+import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.BaseTransientBottomBar.BaseCallback
@@ -72,8 +72,14 @@ internal class MessagesActivity :
     private lateinit var viewModel: MessagesModel
     private var isLoadMore = false
     private var updateAppOnDrawerClose: Long? = null
+    private var loadedMessages: List<MessageWithImage> = emptyList()
+    private var applicationNames: Map<Long, String> = emptyMap()
     private lateinit var listMessageAdapter: ListMessageAdapter
     private lateinit var onBackPressedCallback: OnBackPressedCallback
+
+    /** 上一次真正生效的筛选/搜索词，用于判断是否需要重置展开态。 */
+    private var lastFilterKey: String? = null
+    private var lastQuery: String? = null
 
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -88,20 +94,26 @@ internal class MessagesActivity :
         }
     }
 
+    /** 新增：WebSocket 连接状态广播（不改动既有 NEW_MESSAGE_BROADCAST 逻辑）。 */
+    private val connectionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val connected = intent.getBooleanExtra(WebSocketService.EXTRA_CONNECTED, false)
+            val url = intent.getStringExtra(WebSocketService.EXTRA_URL)
+            updateConnectionStatus(connected, url)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMessagesBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this, MessagesModelFactory(this))[MessagesModel::class.java]
         Logger.info("Entering " + javaClass.simpleName)
+        initTopbar()
         initDrawer()
 
         val layoutManager = LinearLayoutManager(this)
         val messagesView: RecyclerView = binding.messagesView
-        val dividerItemDecoration = DividerItemDecoration(
-            messagesView.context,
-            layoutManager.orientation
-        )
         listMessageAdapter = ListMessageAdapter(
             this,
             viewModel.settings,
@@ -110,8 +122,31 @@ internal class MessagesActivity :
             scheduleDeletion(message)
         }
         addBackPressCallback()
+        binding.sendMessage.setOnClickListener {
+            startActivity(Intent(this, ShareActivity::class.java))
+        }
+        binding.appBarDrawer.messageSearch.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(
+                    text: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) = Unit
 
-        messagesView.addItemDecoration(dividerItemDecoration)
+                override fun onTextChanged(
+                    text: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                    applyMessageSearch()
+                }
+
+                override fun afterTextChanged(text: Editable?) = Unit
+            }
+        )
+
         messagesView.setHasFixedSize(true)
         messagesView.layoutManager = layoutManager
         messagesView.addOnScrollListener(MessageListOnScrollListener())
@@ -136,10 +171,11 @@ internal class MessagesActivity :
                     updateAppOnDrawerClose?.let { selectApp ->
                         updateAppOnDrawerClose = null
                         viewModel.appId = selectApp
+                        selectApplicationFilter(selectApp)
+                        updateSectionHead()
                         launchCoroutine {
                             updateMessagesForApplication(true, selectApp)
                         }
-                        invalidateOptionsMenu()
                     }
                     onBackPressedCallback.isEnabled = false
                 }
@@ -161,6 +197,7 @@ internal class MessagesActivity :
         val excludeFromRecent = PreferenceManager.getDefaultSharedPreferences(this)
             .getBoolean(getString(R.string.setting_key_exclude_from_recent), false)
         Utils.setExcludeFromRecent(this, excludeFromRecent)
+        updateConnectionStatus(WebSocketService.isConnected, viewModel.settings.url)
         launchCoroutine {
             updateMessagesForApplication(true, viewModel.appId)
         }
@@ -171,6 +208,41 @@ internal class MessagesActivity :
         binding.learnGotify.setOnClickListener { openDocumentation() }
     }
 
+    /** 顶栏：不再 setSupportActionBar，直接用自定义标题与两个 icon-btn。 */
+    private fun initTopbar() {
+        binding.appBarDrawer.actionRefresh.setOnClickListener { refreshAll() }
+        binding.appBarDrawer.actionMenu.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+        }
+    }
+
+    /**
+     * 连接状态条（原型 .connection）。
+     *
+     * connected=false 时文案与圆点切到未连接/重连中状态。
+     */
+    private fun updateConnectionStatus(connected: Boolean, url: String?) {
+        binding.appBarDrawer.connectionTitle.setText(
+            if (connected) R.string.messages_connected else R.string.messages_disconnected
+        )
+        binding.appBarDrawer.connectionSubtitle.text = (url ?: viewModel.settings.url).orEmpty()
+        binding.appBarDrawer.connectionLive.visibility =
+            if (connected) View.VISIBLE else View.GONE
+        binding.appBarDrawer.connectionLive.setTextColor(
+            ContextCompat.getColor(
+                this,
+                if (connected) R.color.gotify_success else R.color.gotify_warning
+            )
+        )
+        binding.appBarDrawer.connectionDot.setBackgroundResource(
+            if (connected) {
+                R.drawable.gotify_messages_dot_ripple
+            } else {
+                R.drawable.gotify_messages_dot_off
+            }
+        )
+    }
+
     private fun refreshAll() {
         CoilInstance.evict(this)
         startActivity(Intent(this, InitializationActivity::class.java))
@@ -179,13 +251,10 @@ internal class MessagesActivity :
 
     private fun onRefresh() {
         CoilInstance.evict(this)
+        listMessageAdapter.collapseExpanded()
         viewModel.messages.clear()
         launchCoroutine {
-            loadMore(viewModel.appId).forEachIndexed { index, message ->
-                if (message.image != null) {
-                    listMessageAdapter.notifyItemChanged(index)
-                }
-            }
+            updateMessagesAndStopLoading(loadMore(viewModel.appId))
         }
     }
 
@@ -195,60 +264,176 @@ internal class MessagesActivity :
     }
 
     private fun onUpdateApps(applications: List<Application>) {
-        val menu: Menu = binding.navView.menu
-        menu.removeGroup(R.id.apps)
         viewModel.targetReferences.clear()
+        applicationNames = applications.associate { it.id to it.name }
+        listMessageAdapter.setApplications(applications)
+        rebuildDrawerMenu(applications)
+        updateApplicationFilters(applications)
+        updateSectionHead()
         updateMessagesAndStopLoading(viewModel.messages[viewModel.appId])
-        var selectedItem = menu.findItem(R.id.nav_all_messages)
-        applications.indices.forEach { index ->
-            val app = applications[index]
-            val item = menu.add(R.id.apps, index, APPLICATION_ORDER, app.name)
+    }
+
+    /**
+     * 抽屉菜单（原型 .drawer-section + .drawer-item）。
+     *
+     * messages_menu.xml 不在本页可改范围内，因此分组标题与条目在此按原型重建。
+     */
+    private fun rebuildDrawerMenu(applications: List<Application>) {
+        val menu: Menu = binding.navView.menu
+        menu.clear()
+        viewModel.targetReferences.clear()
+
+        menu.add(
+            Menu.NONE,
+            MENU_ID_HEADER_SOURCES,
+            MENU_ORDER_HEADER,
+            R.string.messages_drawer_sources
+        )
+            .setEnabled(false)
+        val allItem = menu.add(
+            MENU_GROUP_SOURCES,
+            R.id.nav_all_messages,
+            MENU_ORDER_ITEM,
+            R.string.messages_drawer_all
+        )
+        allItem.isCheckable = true
+        allItem.setIcon(R.drawable.gotify_messages_icon_all)
+
+        var selectedItem: MenuItem = allItem
+        applications.forEachIndexed { index, app ->
+            val item = menu.add(MENU_GROUP_SOURCES, index, MENU_ORDER_ITEM, app.name)
             item.isCheckable = true
             if (app.id == viewModel.appId) selectedItem = item
-            val t = Utils.toDrawable { icon -> item.icon = icon }
-            viewModel.targetReferences.add(t)
+            val target = Utils.toDrawable { icon -> item.icon = icon }
+            viewModel.targetReferences.add(target)
             val request = ImageRequest.Builder(this)
                 .data(Utils.resolveAbsoluteUrl(viewModel.settings.url + "/", app.image))
                 .error(R.drawable.ic_alarm)
                 .placeholder(R.drawable.ic_placeholder)
                 .size(100, 100)
-                .target(t)
+                .target(target)
                 .build()
             CoilInstance.get(this).enqueue(request)
         }
+
+        menu.add(
+            Menu.NONE,
+            MENU_ID_HEADER_MORE,
+            MENU_ORDER_HEADER_MORE,
+            R.string.messages_drawer_more
+        )
+            .setEnabled(false)
+        menu.add(
+            MENU_GROUP_MORE,
+            R.id.push_message,
+            MENU_ORDER_ITEM_MORE,
+            R.string.messages_drawer_send
+        )
+            .setIcon(R.drawable.ic_send)
+        menu.add(
+            MENU_GROUP_MORE,
+            R.id.settings,
+            MENU_ORDER_ITEM_MORE,
+            R.string.messages_drawer_settings
+        )
+            .setIcon(R.drawable.ic_settings)
+        menu.add(
+            MENU_GROUP_MORE,
+            R.id.nav_logs,
+            MENU_ORDER_ITEM_MORE,
+            R.string.messages_drawer_logs
+        )
+            .setIcon(R.drawable.ic_bug_report)
+        // 原型未画「删除全部消息」，但这是既有功能，不能因为改版而丢失。
+        menu.add(MENU_GROUP_MORE, R.id.action_delete_all, MENU_ORDER_ITEM_MORE, R.string.delete_all)
+            .setIcon(R.drawable.ic_delete)
+        menu.add(MENU_GROUP_MORE, R.id.logout, MENU_ORDER_LOGOUT, R.string.messages_drawer_logout)
+            .setIcon(R.drawable.ic_power_setting)
+
         selectAppInMenu(selectedItem)
     }
 
-    private fun initDrawer() {
-        setSupportActionBar(binding.appBarDrawer.toolbar)
-        binding.navView.itemIconTintList = null
-        val toggle = ActionBarDrawerToggle(
-            this,
-            binding.drawerLayout,
-            binding.appBarDrawer.toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
+    private fun updateApplicationFilters(applications: List<Application>) {
+        val filters = binding.appBarDrawer.applicationFilters
+        filters.removeAllViews()
+        filters.addView(
+            createApplicationFilter(
+                getString(R.string.messages_filter_all),
+                MessageState.ALL_MESSAGES
+            )
         )
-        binding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        applications.forEach { application ->
+            filters.addView(createApplicationFilter(application.name, application.id))
+        }
+        selectApplicationFilter(viewModel.appId)
+    }
 
+    /** 选中态由 @color/gotify_chip_* 选择器提供（代码创建 Chip 需显式套用，不能只靠 style）。 */
+    private fun createApplicationFilter(label: String, appId: Long): Chip {
+        return Chip(this, null, com.google.android.material.R.attr.chipStyle).apply {
+            text = label
+            isCheckable = true
+            isCheckedIconVisible = false
+            tag = appId
+            val density = resources.displayMetrics.density
+            setChipBackgroundColorResource(R.color.gotify_chip_bg)
+            chipStrokeColor = ContextCompat.getColorStateList(context, R.color.gotify_chip_stroke)
+            chipStrokeWidth = density * 1f
+            chipCornerRadius = density * 999f
+            setTextColor(ContextCompat.getColorStateList(context, R.color.gotify_chip_text))
+            setTextAppearance(R.style.TextAppearance_Gotify_Button)
+            chipMinHeight = density * 32f
+            setOnClickListener { selectApplication(appId, label) }
+        }
+    }
+
+    private fun selectApplication(appId: Long, label: CharSequence) {
+        if (appId == viewModel.appId) return
+        viewModel.appId = appId
+        updateSectionHead()
+        selectApplicationFilter(appId)
+        selectAppInMenu(findApplicationMenuItem(appId))
+        startLoading()
+        launchCoroutine {
+            updateMessagesForApplication(true, appId)
+        }
+    }
+
+    private fun selectApplicationFilter(appId: Long) {
+        val filters = binding.appBarDrawer.applicationFilters
+        for (index in 0 until filters.childCount) {
+            val chip = filters.getChildAt(index) as Chip
+            chip.isChecked = chip.tag == appId
+        }
+    }
+
+    private fun findApplicationMenuItem(appId: Long): MenuItem? {
+        if (appId == MessageState.ALL_MESSAGES) {
+            return binding.navView.menu.findItem(R.id.nav_all_messages)
+        }
+        val applications = viewModel.appsHolder.get()
+        val index = applications.indexOfFirst { it.id == appId }
+        return if (index >= 0) binding.navView.menu.findItem(index) else null
+    }
+
+    private fun initDrawer() {
+        // 应用图标是彩色图片，不能被 NavigationView 的图标着色统一染色
+        binding.navView.itemIconTintList = null
         binding.navView.setNavigationItemSelectedListener(this)
-        val headerView = binding.navView.getHeaderView(0)
 
+        val headerView = binding.navView.getHeaderView(0)
         val settings = viewModel.settings
 
-        val user = headerView.findViewById<TextView>(R.id.header_user)
-        user.text = settings.user?.name
+        headerView.findViewById<TextView>(R.id.header_connection).text = settings.url
+        headerView.findViewById<TextView>(R.id.header_user).text = settings.user?.name.orEmpty()
+        headerView.findViewById<TextView>(R.id.header_version).text = getString(
+            R.string.versions,
+            BuildConfig.VERSION_NAME,
+            settings.serverVersion
+        )
 
-        val connection = headerView.findViewById<TextView>(R.id.header_connection)
-        connection.text = settings.url
-
-        val version = headerView.findViewById<TextView>(R.id.header_version)
-        version.text =
-            getString(R.string.versions, BuildConfig.VERSION_NAME, settings.serverVersion)
-
-        val refreshAll = headerView.findViewById<ImageButton>(R.id.refresh_all)
-        refreshAll.setOnClickListener { refreshAll() }
+        headerView.findViewById<View>(R.id.refresh_all)
+            .setOnClickListener { refreshAll() }
     }
 
     private fun addBackPressCallback() {
@@ -263,31 +448,50 @@ internal class MessagesActivity :
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        val id = item.itemId
-        if (item.groupId == R.id.apps) {
-            val app = viewModel.appsHolder.get()[id]
-            updateAppOnDrawerClose = app.id
-            startLoading()
-            binding.appBarDrawer.toolbar.subtitle = item.title
-        } else if (id == R.id.nav_all_messages) {
-            updateAppOnDrawerClose = MessageState.ALL_MESSAGES
-            startLoading()
-            binding.appBarDrawer.toolbar.subtitle = ""
-        } else if (id == R.id.logout) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.logout)
-                .setMessage(getString(R.string.logout_confirm))
-                .setPositiveButton(R.string.yes) { _, _ -> doLogout() }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        } else if (id == R.id.nav_logs) {
-            startActivity(Intent(this, LogsActivity::class.java))
-        } else if (id == R.id.settings) {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        } else if (id == R.id.push_message) {
-            val intent = Intent(this@MessagesActivity, ShareActivity::class.java)
-            startActivity(intent)
+        val sources = viewModel.appsHolder.get()
+        when (item.itemId) {
+            R.id.nav_all_messages -> {
+                updateAppOnDrawerClose = MessageState.ALL_MESSAGES
+                startLoading()
+            }
+
+            R.id.logout -> {
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.logout)
+                    .setMessage(getString(R.string.logout_confirm))
+                    .setPositiveButton(R.string.yes) { _, _ -> doLogout() }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+                return true
+            }
+
+            R.id.action_delete_all -> {
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.delete_all)
+                    .setMessage(R.string.ack)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        launchCoroutine { deleteMessages(viewModel.appId) }
+                    }
+                    .setNegativeButton(R.string.no, null)
+                    .show()
+                return true
+            }
+
+            R.id.nav_logs -> startActivity(Intent(this, LogsActivity::class.java))
+
+            R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
+
+            R.id.push_message -> startActivity(Intent(this, ShareActivity::class.java))
+
+            else -> {
+                val app = sources.getOrNull(item.itemId)
+                if (app != null) {
+                    updateAppOnDrawerClose = app.id
+                    startLoading()
+                }
+            }
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -317,60 +521,70 @@ internal class MessagesActivity :
         nManager.cancelAll()
         val filter = IntentFilter()
         filter.addAction(WebSocketService.NEW_MESSAGE_BROADCAST)
+        filter.addAction(WebSocketService.CONNECTION_BROADCAST)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(receiver, filter, RECEIVER_EXPORTED)
+            registerReceiver(receiver, filter, RECEIVER_NOT_EXPORTED)
+            registerReceiver(
+                connectionReceiver,
+                IntentFilter(WebSocketService.CONNECTION_BROADCAST),
+                RECEIVER_NOT_EXPORTED
+            )
         } else {
             @SuppressLint("UnspecifiedRegisterReceiverFlag")
             registerReceiver(receiver, filter)
+            @SuppressLint("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(
+                connectionReceiver,
+                IntentFilter(WebSocketService.CONNECTION_BROADCAST)
+            )
         }
         launchCoroutine {
             updateMissedMessages(viewModel.messages.getLastReceivedMessage())
         }
-        var selectedIndex = R.id.nav_all_messages
-        val appId = viewModel.appId
-        if (appId != MessageState.ALL_MESSAGES) {
-            val apps = viewModel.appsHolder.get()
-            apps.indices.forEach { index ->
-                if (apps[index].id == appId) {
-                    selectedIndex = index
-                }
-            }
-        }
+        // 连接状态广播可能发生在注册之前，这里用服务当前状态补齐
+        updateConnectionStatus(WebSocketService.isConnected, viewModel.settings.url)
         // Force re-render of all items to update relative date-times on app resume.
         listMessageAdapter.notifyDataSetChanged()
-        selectAppInMenu(binding.navView.menu.findItem(selectedIndex))
+        selectAppInMenu(findApplicationMenuItem(viewModel.appId))
+        updateSectionHead()
         super.onResume()
     }
 
     override fun onPause() {
-        unregisterReceiver(receiver)
+        unregisterQuietly(receiver)
+        unregisterQuietly(connectionReceiver)
         super.onPause()
+    }
+
+    /** 登出会先 setContentView(R.layout.splash)，此时广播可能已不在注册状态。 */
+    private fun unregisterQuietly(target: BroadcastReceiver) {
+        try {
+            unregisterReceiver(target)
+        } catch (e: IllegalArgumentException) {
+            Logger.warn(e, "Receiver was not registered")
+        }
     }
 
     private fun selectAppInMenu(appItem: MenuItem?) {
         if (appItem != null) {
             appItem.isChecked = true
-            if (appItem.itemId != R.id.nav_all_messages) {
-                binding.appBarDrawer.toolbar.subtitle = appItem.title
-            }
         }
     }
 
     private fun scheduleDeletion(message: Message) {
-        val adapter = binding.messagesView.adapter as ListMessageAdapter
+        listMessageAdapter.collapseExpanded()
         val messages = viewModel.messages
         messages.deleteLocal(message)
-        adapter.updateList(messages[viewModel.appId])
+        loadedMessages = messages[viewModel.appId]
+        applyMessageSearch()
         showDeletionSnackbar()
     }
 
     private fun undoDelete() {
         val messages = viewModel.messages
-        val deletion = messages.undoDeleteLocal()
-        if (deletion != null) {
-            val adapter = binding.messagesView.adapter as ListMessageAdapter
-            val appId = viewModel.appId
-            adapter.updateList(messages[appId])
+        if (messages.undoDeleteLocal() != null) {
+            loadedMessages = messages[viewModel.appId]
+            applyMessageSearch()
         }
     }
 
@@ -422,9 +636,12 @@ internal class MessagesActivity :
             target: RecyclerView.ViewHolder
         ) = false
 
+        /**
+         * 加入按天分组头后 adapter position 不再等于消息下标，
+         * 因此必须经 adapter.itemAt() 换算；分组头返回 null，直接跳过删除。
+         */
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.adapterPosition
-            val message = adapter.currentList[position]
+            val message = adapter.itemAt(viewHolder.adapterPosition) ?: return
             scheduleDeletion(message.message)
         }
 
@@ -515,42 +732,29 @@ internal class MessagesActivity :
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.messages_action, menu)
-        menu.findItem(R.id.action_delete_app).isVisible =
-            viewModel.appId != MessageState.ALL_MESSAGES
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_delete_all) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.delete_all)
-                .setMessage(R.string.ack)
-                .setPositiveButton(R.string.yes) { _, _ ->
-                    launchCoroutine {
-                        deleteMessages(viewModel.appId)
-                    }
-                }
-                .setNegativeButton(R.string.no, null)
-                .show()
-        }
-        if (item.itemId == R.id.action_delete_app) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.delete_app)
-                .setMessage(R.string.delete_app_not_supported)
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
-        }
-        return super.onContextItemSelected(item)
-    }
-
     private suspend fun loadMore(appId: Long): List<MessageWithImage> {
         val messagesWithImages = viewModel.messages.loadMore(appId)
         withContext(Dispatchers.Main) {
             updateMessagesAndStopLoading(messagesWithImages)
         }
         return messagesWithImages
+    }
+
+    private suspend fun deleteMessages(appId: Long) {
+        withContext(Dispatchers.Main) {
+            startLoading()
+        }
+        val success = viewModel.messages.deleteAll(appId)
+        if (success) {
+            updateMessagesForApplication(false, viewModel.appId)
+        } else {
+            withContext(Dispatchers.Main) {
+                Utils.showSnackBar(
+                    this@MessagesActivity,
+                    getString(R.string.messages_delete_failed)
+                )
+            }
+        }
     }
 
     private suspend fun updateMessagesForApplication(withLoadingSpinner: Boolean, appId: Long) {
@@ -573,20 +777,6 @@ internal class MessagesActivity :
     private suspend fun commitDeleteMessage() {
         viewModel.messages.commitDelete()
         updateMessagesForApplication(false, viewModel.appId)
-    }
-
-    private suspend fun deleteMessages(appId: Long) {
-        withContext(Dispatchers.Main) {
-            startLoading()
-        }
-        val success = viewModel.messages.deleteAll(appId)
-        if (success) {
-            updateMessagesForApplication(false, viewModel.appId)
-        } else {
-            withContext(Dispatchers.Main) {
-                Utils.showSnackBar(this@MessagesActivity, "Delete failed :(")
-            }
-        }
     }
 
     private fun deleteClientAndNavigateToLogin() {
@@ -630,17 +820,57 @@ internal class MessagesActivity :
     private fun updateMessagesAndStopLoading(messageWithImages: List<MessageWithImage>) {
         isLoadMore = false
         stopLoading()
-        if (messageWithImages.isEmpty()) {
-            binding.flipper.displayedChild = 1
+        loadedMessages = messageWithImages
+        applyMessageSearch()
+    }
+
+    private fun applyMessageSearch() {
+        val query = binding.appBarDrawer.messageSearch.text?.toString()?.trim().orEmpty()
+        val filterKey = "${viewModel.appId}"
+        val messages = if (query.isEmpty()) {
+            loadedMessages
         } else {
-            binding.flipper.displayedChild = 0
+            loadedMessages.filter { message ->
+                val source = applicationNames[message.message.appid].orEmpty()
+                message.message.title.orEmpty().contains(query, ignoreCase = true) ||
+                    message.message.message.contains(query, ignoreCase = true) ||
+                    source.contains(query, ignoreCase = true)
+            }
         }
-        val adapter = binding.messagesView.adapter as ListMessageAdapter
-        adapter.updateList(messageWithImages)
+        // 切换筛选 / 刷新 / 搜索时重置展开态
+        if (filterKey != lastFilterKey || query != lastQuery) {
+            lastFilterKey = filterKey
+            lastQuery = query
+            listMessageAdapter.collapseExpanded()
+        }
+
+        val hasQuery = query.isNotEmpty()
+        binding.textView2.setText(
+            if (hasQuery) R.string.messages_empty_search else R.string.no_messages_yet
+        )
+        binding.learnGotify.visibility =
+            if (hasQuery) View.GONE else View.VISIBLE
+        binding.flipper.displayedChild = if (messages.isEmpty()) 1 else 0
+
+        updateSectionCount(messages.size)
+        listMessageAdapter.updateList(messages)
+    }
+
+    private fun updateSectionCount(visible: Int) {
+        binding.appBarDrawer.sectionCount.text = getString(R.string.messages_count, visible)
+    }
+
+    /** 分区头标题（原型 #view-title）：全部 / 某个应用名。 */
+    private fun updateSectionHead() {
+        binding.appBarDrawer.sectionTitle.text = if (viewModel.appId == MessageState.ALL_MESSAGES) {
+            getString(R.string.messages_drawer_all)
+        } else {
+            applicationNames[viewModel.appId] ?: getString(R.string.messages_drawer_all)
+        }
     }
 
     private fun ListMessageAdapter.updateList(list: List<MessageWithImage>) {
-        this.submitList(if (this.currentList == list) list.toList() else list) {
+        this.submitList(group(list)) {
             val topChild = binding.messagesView.getChildAt(0)
             if (topChild != null && topChild.top == 0) {
                 binding.messagesView.scrollToPosition(0)
@@ -649,6 +879,15 @@ internal class MessagesActivity :
     }
 
     companion object {
-        private const val APPLICATION_ORDER = 1
+        private const val MENU_GROUP_HEADER = 900
+        private const val MENU_GROUP_SOURCES = 901
+        private const val MENU_GROUP_MORE = 902
+        private const val MENU_ID_HEADER_SOURCES = 910
+        private const val MENU_ID_HEADER_MORE = 911
+        private const val MENU_ORDER_HEADER = 0
+        private const val MENU_ORDER_ITEM = 1
+        private const val MENU_ORDER_HEADER_MORE = 10
+        private const val MENU_ORDER_ITEM_MORE = 11
+        private const val MENU_ORDER_LOGOUT = 12
     }
 }

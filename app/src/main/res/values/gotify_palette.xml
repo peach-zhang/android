@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gotify_page_background">#EAF0F7</color>
+    <color name="gotify_surface">#FFFFFF</color>
+    <color name="gotify_surface_soft">#F5F8FC</color>
+    <color name="gotify_text_primary">#172941</color>
+    <color name="gotify_text_secondary">#65758A</color>
+    <color name="gotify_divider">#DCE5F0</color>
+    <color name="gotify_brand">#3867D6</color>
+    <color name="gotify_brand_filled">#3867D6</color>
+    <color name="gotify_brand_pressed">#2A52AC</color>
+    <color name="gotify_brand_disabled">#733867D6</color>
+    <color name="gotify_brand_deep">#2453C0</color>
+    <color name="gotify_on_brand">#FFFFFF</color>
+    <color name="gotify_brand_soft">#EAF0FF</color>
+    <color name="gotify_success">#168376</color>
+    <color name="gotify_success_soft">#E4F5F1</color>
+    <color name="gotify_warning">#A65B20</color>
+    <color name="gotify_warning_soft">#FFF1DF</color>
+    <color name="gotify_danger">#B54B49</color>
+    <color name="gotify_danger_soft">#FBECEB</color>
+    <color name="gotify_focus">#3867D6</color>
+    <!--  阴影与遮罩（原型 shade / scrim）  -->
+    <color name="gotify_shade">#1F1A335B</color>
+    <color name="gotify_scrim">#7A0D1E36</color>
+</resources>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  ============================================================  -->
+<!--  登录页（gotify-login-concept.html）新增文案，键名前缀 login_  -->
+<!--  ============================================================  -->
+<resources>
+
+    <!--  顶栏  -->
+    <string name="login_wordmark" translatable="false">gotify</string>
+    <string name="login_wordmark_dot" translatable="false">.</string>
+    <string name="login_view_logs">View logs</string>
+
+    <!--  Hero  -->
+    <string name="login_kicker">WELCOME BACK</string>
+    <string name="login_intro_title">Connect to your messages.</string>
+    <string name="login_intro_body">Start with your server address, then pick the sign-in method that fits your setup.</string>
+
+    <!--  步骤 01 连接服务器  -->
+    <string name="login_step_server_num">01</string>
+    <string name="login_step_server_title">Connect to server</string>
+    <string name="login_server_label">Gotify server address</string>
+    <string name="login_server_hint">Enter your own server address, including https:// or http://.</string>
+    <string name="login_url_error">That address looks wrong. Enter a full address starting with https:// or http://.</string>
+    <string name="login_server_found">Server found · Gotify %1$s</string>
+    <string name="login_check_url">Check address</string>
+    <string name="login_recheck_url">Check address again</string>
+    <string name="login_checking_url">Checking…</string>
+    <string name="login_advanced">Advanced settings</string>
+
+    <!--  步骤 02 选择登录方式  -->
+    <string name="login_step_auth_num">02</string>
+    <string name="login_step_auth_title">Choose a sign-in method</string>
+    <string name="login_oidc_title">Sign in with your provider</string>
+    <string name="login_oidc_subtitle">OIDC · your server’s identity provider</string>
+    <string name="login_or">or use username and password</string>
+    <string name="login_username_label">Username</string>
+    <string name="login_username_hint">Enter username</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_password_hint">Enter password</string>
+    <string name="login_password_show">Show</string>
+    <string name="login_password_hide">Hide</string>
+    <string name="login_submit">Sign in</string>
+    <string name="login_privacy">Your sign-in details are only ever sent to the Gotify server you specify.</string>
+
+    <!--  底部说明  -->
+    <string name="login_bottom_note_strong">Need a self-signed certificate?</string>
+    <string name="login_bottom_note_rest">Choose a CA or client certificate in Advanced settings.</string>
+
+    <!--  高级连接设置对话框  -->
+    <string name="login_advanced_title">Advanced connection settings</string>
+    <string name="login_advanced_message">Only change these when your server uses a self-signed or private certificate.</string>
+    <string name="login_skip_ssl">Skip SSL validation (not recommended)</string>
+    <string name="login_ca_cert_label">Custom CA certificate</string>
+    <string name="login_client_cert_label">Client certificate · PKCS#12</string>
+    <string name="login_choose_file">Choose file</string>
+    <string name="login_remove_file">Remove</string>
+    <string name="login_no_cert_selected">No certificate selected</string>
+    <string name="login_client_cert_password">Client certificate password</string>
+    <string name="login_cert_found">Certificate selected</string>
+
+    <!--  客户端命名对话框  -->
+    <string name="login_client_name_title">Name this device</string>
+    <string name="login_client_name_message">Choose a name for this session</string>
+    <string name="login_client_name_label">Client name</string>
+
+    <!--  对话框按钮  -->
+    <string name="login_dialog_cancel">Cancel</string>
+    <string name="login_dialog_done">Done</string>
+
+</resources>

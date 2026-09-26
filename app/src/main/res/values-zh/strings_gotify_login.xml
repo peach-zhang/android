@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  ============================================================  -->
+<!--  登录页（gotify-login-concept.html）新增文案：中文，取自原型原文  -->
+<!--  ============================================================  -->
+<resources>
+
+    <!--  顶栏  -->
+    <string name="login_view_logs">查看日志</string>
+
+    <!--  Hero  -->
+    <string name="login_kicker">欢迎回来</string>
+    <string name="login_intro_title">连接你的消息。</string>
+    <string name="login_intro_body">先填写服务器地址，再选择适合你的登录方式。</string>
+
+    <!--  步骤 01 连接服务器  -->
+    <string name="login_step_server_num">01</string>
+    <string name="login_step_server_title">连接服务器</string>
+    <string name="login_server_label">Gotify 服务器地址</string>
+    <string name="login_server_hint">填写你自己的服务器地址，包含 https:// 或 http://。</string>
+    <string name="login_url_error">地址格式不正确。请填写包含 https:// 或 http:// 的完整地址。</string>
+    <string name="login_server_found">已找到服务器 · Gotify %1$s</string>
+    <string name="login_check_url">检查地址</string>
+    <string name="login_recheck_url">重新检查地址</string>
+    <string name="login_checking_url">检查中…</string>
+    <string name="login_advanced">高级设置</string>
+
+    <!--  步骤 02 选择登录方式  -->
+    <string name="login_step_auth_num">02</string>
+    <string name="login_step_auth_title">选择登录方式</string>
+    <string name="login_oidc_title">使用身份提供方登录</string>
+    <string name="login_oidc_subtitle">OIDC · 使用服务器的身份提供方</string>
+    <string name="login_or">或使用账号密码</string>
+    <string name="login_username_label">用户名</string>
+    <string name="login_username_hint">输入用户名</string>
+    <string name="login_password_label">密码</string>
+    <string name="login_password_hint">输入密码</string>
+    <string name="login_password_show">显示</string>
+    <string name="login_password_hide">隐藏</string>
+    <string name="login_submit">登录</string>
+    <string name="login_privacy">登录信息只会发送到你指定的 Gotify 服务器。</string>
+
+    <!--  底部说明  -->
+    <string name="login_bottom_note_strong">需要自签名证书？</string>
+    <string name="login_bottom_note_rest">在「高级设置」中选择 CA 证书或客户端证书。</string>
+
+    <!--  高级连接设置对话框  -->
+    <string name="login_advanced_title">高级连接设置</string>
+    <string name="login_advanced_message">仅当服务器使用自签名或私有证书时才需要修改。</string>
+    <string name="login_skip_ssl">跳过 SSL 验证（不推荐）</string>
+    <string name="login_ca_cert_label">自定义 CA 证书</string>
+    <string name="login_client_cert_label">客户端证书 · PKCS#12</string>
+    <string name="login_choose_file">选择文件</string>
+    <string name="login_remove_file">移除</string>
+    <string name="login_no_cert_selected">未选择证书</string>
+    <string name="login_client_cert_password">客户端证书密码</string>
+    <string name="login_cert_found">已选择证书</string>
+
+    <!--  客户端命名对话框  -->
+    <string name="login_client_name_title">为此设备命名</string>
+    <string name="login_client_name_message">为本次会话选择一个名称</string>
+    <string name="login_client_name_label">客户端名称</string>
+
+    <!--  对话框按钮  -->
+    <string name="login_dialog_cancel">取消</string>
+    <string name="login_dialog_done">完成</string>
+
+</resources>

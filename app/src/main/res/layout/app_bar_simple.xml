@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Gotify 通用顶栏：返回按钮 + 标题 + 底部 1dp 分隔线。
+      对应 concept 原型中的 header.topbar（logs / send / settings 三页共用）。  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/gotify_surface"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/gotify_topbar_height"
+        android:background="@color/gotify_surface"
+        android:paddingStart="@dimen/gotify_space_4"
+        android:paddingEnd="@dimen/gotify_space_4"
+        app:navigationIconTint="@color/gotify_text_primary"
+        app:titleTextAppearance="@style/TextAppearance.Gotify.ScreenTitle"
+        app:titleTextColor="@color/gotify_text_primary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/gotify_border"
+        android:background="@color/gotify_divider" />
+</LinearLayout>

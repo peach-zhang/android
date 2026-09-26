@@ -1,0 +1,12 @@
+<resources>
+    <!--  Theme  -->
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="theme_default">跟随系统</string>
+    <!--  Message Layout  -->
+    <string name="message_layout_entry_normal">标准</string>
+    <string name="message_layout_entry_compact">紧凑</string>
+    <!--  Time Format  -->
+    <string name="time_format_entry_absolute">绝对时间</string>
+    <string name="time_format_entry_relative">相对时间</string>
+</resources>

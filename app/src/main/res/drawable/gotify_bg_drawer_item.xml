@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/gotify_brand_soft">
+    <item>
+        <selector>
+            <item
+                android:drawable="@drawable/gotify_bg_drawer_item_selected"
+                android:state_activated="true" />
+            <item
+                android:drawable="@drawable/gotify_bg_drawer_item_selected"
+                android:state_selected="true" />
+            <item
+                android:drawable="@drawable/gotify_bg_drawer_item_selected"
+                android:state_checked="true" />
+            <item android:drawable="@android:color/transparent" />
+        </selector>
+    </item>
+</ripple>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  消息页（gotify-messages-concept.html）新增文案，取自原型原文。  -->
+<resources>
+    <!--  顶栏  -->
+    <string name="messages_title">消息</string>
+    <string name="messages_refresh">刷新</string>
+    <string name="messages_menu">菜单</string>
+
+    <!--  连接状态条  -->
+    <string name="messages_connected">已连接 · 实时接收中</string>
+    <string name="messages_disconnected">未连接 · 重连中</string>
+    <string name="messages_live">LIVE</string>
+    <string name="messages_connecting">正在连接…</string>
+
+    <!--  分区头  -->
+    <string name="messages_kicker_inbox">收件箱</string>
+    <string name="messages_count">%1$d 条</string>
+
+    <!--  应用筛选与搜索  -->
+    <string name="messages_filter_all">全部</string>
+    <string name="messages_search_hint">搜索标题或内容</string>
+    <string name="messages_search_scope">仅搜索已加载的消息。</string>
+    <string name="messages_empty_search">没有匹配的消息。\n试试其他应用或搜索词。</string>
+
+    <!--  消息卡片  -->
+    <string name="messages_day_today">今天</string>
+    <string name="messages_day_yesterday">昨天</string>
+    <string name="messages_source_label">应用消息</string>
+    <string name="messages_message_id">消息 #%1$d</string>
+    <string name="messages_priority_high">高 · %1$d</string>
+    <string name="messages_priority_normal">普通 · %1$d</string>
+    <string name="messages_priority_low">低 · %1$d</string>
+    <string name="messages_expand">展开详情</string>
+    <string name="messages_collapse">收起详情</string>
+
+    <!--  展开详情  -->
+    <string name="messages_copy_content">复制内容</string>
+    <string name="messages_delete">删除消息</string>
+    <string name="messages_copied">消息内容已复制</string>
+
+    <!--  抽屉  -->
+    <string name="messages_drawer_subtitle">通知与消息，一目了然</string>
+    <string name="messages_drawer_sources">消息来源</string>
+    <string name="messages_drawer_more">更多</string>
+    <string name="messages_drawer_all">全部消息</string>
+    <string name="messages_drawer_send">发送消息</string>
+    <string name="messages_drawer_settings">设置</string>
+    <string name="messages_drawer_logs">日志</string>
+    <string name="messages_drawer_logout">退出登录</string>
+    <string name="messages_delete_failed">删除失败</string>
+</resources>

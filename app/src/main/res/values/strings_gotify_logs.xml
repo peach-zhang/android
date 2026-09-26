@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  日志页（LogsActivity）文案，对照 gotify-logs-concept.html  -->
+<resources>
+    <string name="logs_title">Runtime logs</string>
+    <string name="logs_source_local">Device logs</string>
+    <string name="logs_privacy_caption">Used to troubleshoot connection and message delivery problems; real logs can contain your server address and other details, so review the content before sharing it.</string>
+    <string name="logs_copy_full">Copy full logs</string>
+    <string name="logs_clear">Clear</string>
+    <string name="logs_search_hint">Search log content</string>
+    <string name="logs_filter_all">All</string>
+    <string name="logs_filter_info">INFO</string>
+    <string name="logs_filter_warn">WARN</string>
+    <string name="logs_filter_error">ERROR</string>
+    <string name="logs_empty_title">No logs yet</string>
+    <string name="logs_empty_body">The app has not written any log entries yet.</string>
+    <string name="logs_no_match_title">No matching logs</string>
+    <string name="logs_no_match_body">Try another keyword or level.</string>
+    <string name="logs_footnote">Device logs · refreshes every 5 seconds</string>
+    <string name="logs_counter">Showing %1$d of %2$d</string>
+    <string name="logs_day_today">Today</string>
+    <string name="logs_clear_confirm_title">Clear logs?</string>
+    <string name="logs_clear_confirm_message">This deletes every log stored on this device and cannot be undone.</string>
+    <string name="logs_clear_confirm_positive">Clear</string>
+</resources>

@@ -9,8 +9,15 @@ internal class Settings(context: Context) {
     private val sharedPreferences: SharedPreferences
     val filesDir: String
     var url: String
-        get() = sharedPreferences.getString("url", "")!!
+        get() {
+            val stored = sharedPreferences.getString("url", DEFAULT_URL)!!
+            return if (stored.isEmpty()) DEFAULT_URL else stored
+        }
         set(value) = sharedPreferences.edit { putString("url", value) }
+
+    companion object {
+        private const val DEFAULT_URL = "https://gotify.dobugs.com"
+    }
     var token: String?
         get() = sharedPreferences.getString("token", null)
         set(value) = sharedPreferences.edit { putString("token", value) }
@@ -60,7 +67,7 @@ internal class Settings(context: Context) {
     fun tokenExists(): Boolean = !token.isNullOrEmpty()
 
     fun clear() {
-        url = ""
+        url = DEFAULT_URL
         token = null
         validateSSL = true
         legacyCert = null
